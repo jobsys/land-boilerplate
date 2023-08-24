@@ -129,7 +129,7 @@
 				class="text-center !text-gray-300 font-bold !py-2 !text-[12px] fixed bottom-0 right-0 !bg-transparent z-0"
 				:class="[isCollapsed ? 'left-[80px]' : 'left-[240px]']"
 			>
-				<p class="mb-1">广东财经大学非学历继续教育管理系统 ©版权所属：广东财经大学</p>
+				<p class="mb-1">XXXXXXXX管理系统 ©版权所属：XXXXXXXXX</p>
 				<p class="mb-0">技术支持： <a href="https://jobsys.cn" target="_blank" class="text-gray-300 font-bold">职迅科技 JOBSYS.cn</a></p>
 			</a-layout-footer>
 		</a-layout>
