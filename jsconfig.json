@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+        "baseUrl": "./",
+        "paths": {
+            "@/*": [
+                "resources/*"
+            ],
+            "@modules/*": [
+                "modules/*"
+            ],
+            "@public/*": [
+                "public/*"
+            ],
+            "@web/*": [
+                "resources/views/web/*"
+            ],
+            "@manager/*": [
+                "resources/views/web/manager/*"
+            ]
+        }
+    }
+}

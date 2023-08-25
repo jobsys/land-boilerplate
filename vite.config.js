@@ -36,7 +36,7 @@ export default defineConfig({
 			resolvers: [AntDesignVueResolver({ importStyle: "less" })],
 		}),
 		eslintPlugin({
-			include: ["resources/**/*.{js,vue}", "Modules/**/*.{js,vue}"],
+			include: ["resources/**/*.{js,vue}"],
 		}),
 	],
 	resolve: {
