@@ -48,6 +48,7 @@ const getForm = () => {
 				accept: ".png,.jpg,.jpeg",
 				action: route("api.manager.tool.uploadFile"),
 				maxSize: 10,
+				multipart: true,
 				type: "picture-card",
 			},
 		},
