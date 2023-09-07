@@ -25,7 +25,7 @@ const provider = reactive({
 		uploadUrl: route("api.manager.tool.uploadFile"),
 	},
 	form: {
-		precessFetchedData: (res) => res.result,
+		afterFetched: (res) => res.result,
 	},
 })
 </script>
