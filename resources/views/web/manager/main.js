@@ -57,7 +57,7 @@ createInertiaApp({
 
 		app.use(auth, { defaultPermissions: userStore.permissions })
 
-		app.config.globalProperties.$http.get("api/ziggy").then((routes) => {
+		app.config.globalProperties.$http.get("api/ziggy/manager").then((routes) => {
 			app.use(ZiggyVue, routes)
 
 			app.mount(el)

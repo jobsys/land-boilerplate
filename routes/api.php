@@ -32,4 +32,4 @@ Route::prefix("manager")->name("api.manager.")->group(function () {
 });
 
 
-Route::get('ziggy', fn() => response()->json(new Ziggy));
+Route::get('ziggy/{group?}', fn($group = null) => response()->json(new Ziggy($group)));
