@@ -157,20 +157,20 @@ if (!function_exists('land_predict_date_time_format')) {
 }
 
 if (!function_exists('land_predict_date_time')) {
-    /**
-     * 预测所给字符串的 Carbon 日期对象
-     * @param $target
-     * @param string|null $type 'date|dateTime'
-     * @return \Carbon\Carbon|bool|null
-     */
-    function land_predict_date_time($target, ?string $type): \Carbon\Carbon|bool|null
-    {
-        if ($type === 'date' && Str::contains($target, ' ')) {
-            $target = explode(' ', $target)[0];
-        }
-        $format = land_predict_date_time_format($target, $type);
-        return $format ? Carbon::createFromFormat($format, $target) : null;
-    }
+	/**
+	 * 预测所给字符串的 Carbon 日期对象
+	 * @param $target
+	 * @param string $type 'date|dateTime'
+	 * @return \Carbon\Carbon|bool|null
+	 */
+	function land_predict_date_time($target, string $type): \Carbon\Carbon|bool|null
+	{
+		if ($type === 'date' && Str::contains($target, ' ')) {
+			$target = explode(' ', $target)[0];
+		}
+		$format = land_predict_date_time_format($target, $type);
+		return $format ? ($type === 'date' ? Carbon::createFromFormat($format, $target)->startOfDay() : Carbon::createFromFormat($format, $target)) : null;
+	}
 }
 
 if (!function_exists('land_config')) {

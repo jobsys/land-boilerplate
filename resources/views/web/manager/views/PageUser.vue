@@ -282,6 +282,7 @@ const getForm = () => {
 			key: "departments",
 			title: "所属部门",
 			type: "tree-select",
+			width: 200,
 			options: props.departments,
 			defaultProps: {
 				treeCheckable: true,
@@ -300,6 +301,7 @@ const getForm = () => {
 			key: "roles",
 			title: "用户角色",
 			type: "select",
+			width: 200,
 			options: state.roleOptions,
 			defaultProps: {
 				mode: "multiple",

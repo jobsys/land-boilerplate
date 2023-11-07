@@ -13,6 +13,7 @@ import { createPinia } from "pinia"
 import { http } from "@/js/plugins"
 import NewbieApp from "./NewbieApp.vue"
 import Layout from "./shared/CommonLayout.vue"
+import appConfig from "./config"
 
 dayjs.locale("zh-cn")
 const pinia = createPinia()
@@ -42,7 +43,7 @@ function resolvePage(pageUri) {
 
 createInertiaApp({
 	progress: {
-		color: "#9921e8",
+		color: appConfig.primaryColor,
 	},
 	title: (title) => `${title}`,
 	resolve: (name) => resolvePage(name),

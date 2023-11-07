@@ -6,32 +6,13 @@ import { AntDesignVueResolver } from "unplugin-vue-components/resolvers"
 import eslintPlugin from "vite-plugin-eslint"
 
 export default defineConfig({
-	css: {
-		preprocessorOptions: {
-			less: {
-				modifyVars: {
-					"primary-color": "#247277",
-					"link-color": "#247277",
-					"border-radius-base": "0.25rem",
-				},
-				javascriptEnabled: true,
-			},
-		},
-	},
 	plugins: [
 		laravel({
 			input: ["resources/views/web/manager/main.js"],
 			buildDirectory: "build/manager",
 			refresh: false,
 		}),
-		vue({
-			template: {
-				transformAssetUrls: {
-					base: null,
-					includeAbsolute: false,
-				},
-			},
-		}),
+		vue(),
 		Components({
 			resolvers: [AntDesignVueResolver({ importStyle: "less" })],
 		}),
@@ -54,8 +35,7 @@ export default defineConfig({
 			output: {
 				manualChunks: {
 					"vue-chunk": ["vue", "@inertiajs/vue3", "@vueuse/core", "pinia"],
-					"web-chunk": ["@ant-design/icons-vue", "ant-design-vue", "simplebar-vue"],
-					"vendor-chunk": ["axios", "dayjs", "lodash-es"],
+					"vendor-chunk": [ "@ant-design/icons-vue", "ant-design-vue", "axios", "dayjs", "jobsys-newbie", "lodash-es","simplebar-vue"],
 				},
 			},
 		},

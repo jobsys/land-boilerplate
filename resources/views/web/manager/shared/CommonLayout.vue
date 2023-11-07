@@ -81,7 +81,7 @@
 							</div>
 
 							<template #overlay>
-								<a-menu>
+								<a-menu class="w-[120px]">
 									<a-menu-item key="0">
 										<Link :href="route('page.manager.center.profile')">
 											<UserOutlined></UserOutlined>
