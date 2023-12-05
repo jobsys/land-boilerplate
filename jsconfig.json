@@ -16,7 +16,10 @@
             ],
             "@manager/*": [
                 "resources/views/web/manager/*"
-            ]
+            ],
+			"@components/*": [
+				"resources/views/components/*"
+			]
         }
     }
 }

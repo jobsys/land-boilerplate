@@ -10,40 +10,50 @@ use OneSm\Sm3;
 
 
 if (!function_exists('land_classify')) {
-    /**
-     * 将列表进行父子级分类
-     * @param $items
-     * @param string $parent_key
-     * @param int $target
-     * @param string $children_key
-     * @return Collection
-     */
-    function land_classify($items, string $parent_key = 'parent_id', int $target = 0, string $children_key = 'children'): Collection
-    {
+	if (!function_exists('land_classify')) {
+		/**
+		 * 将列表进行父子级分类
+		 * @param $items
+		 * @param string $parent_key
+		 * @param int $target
+		 * @param string $children_key
+		 * @param callable|null $callback 支持对每个 item 进行回调处理
+		 * @return Collection
+		 */
+		function land_classify($items, string $parent_key = 'parent_id', int $target = 0, string $children_key = 'children', callable $callback = null): Collection
+		{
 
-        $items = $items instanceof Collection ? $items : collect($items);
+			$items = $items instanceof Collection ? $items : collect($items);
 
-        $result = collect();
+			$result = collect();
 
-        foreach ($items as $index => $item) {
-            if ($item->$parent_key === $target) {
-                $items->forget($index);
-                $children = land_classify($items, $parent_key, $item->id);
-                if ($children->count()) {
-                    $item->{$children_key} = $children;
-                }
-                $result->push($item);
-            }
-        }
+			foreach ($items as $index => $item) {
+				if ($item->$parent_key === $target) {
+					$items->forget($index);
+					$children = land_classify($items, $parent_key, $item->id, $children_key, $callback);
+					if ($children->count()) {
+						$item->{$children_key} = $children;
+					}
+					if ($callback) {
+						$item = $callback($item);
+					}
+					$result->push($item);
+				}
+			}
 
-        if ($target === 0) {
-            foreach ($items as $item) {
-                $result->push(land_classify($item, $parent_key, $item->id)->first());
-            }
-        }
+			if ($target === 0) {
+				foreach ($items as $item) {
+					$pushed_item = land_classify($item, $parent_key, $item->id, $children_key, $callback)->first();
+					if ($callback) {
+						$pushed_item = $callback($callback);
+					}
+					$result->push($pushed_item);
+				}
+			}
 
-        return $result;
-    }
+			return $result;
+		}
+	}
 }
 
 

@@ -1,3 +1,4 @@
+import { fileURLToPath, URL } from "url"
 import { defineConfig } from "vite"
 import laravel from "laravel-vite-plugin"
 import vue from "@vitejs/plugin-vue"
@@ -21,13 +22,14 @@ export default defineConfig({
 		}),
 	],
 	resolve: {
-		alias: {
-			"@": "/resources",
-			"@modules": "/Modules",
-			"@public": "/public",
-			"@web": "/resources/views/web",
-			"@manager": "/resources/views/web/manager",
-		},
+		alias: [
+			{ find: "@", replacement: fileURLToPath(new URL("./resources", import.meta.url)) },
+			{ find: "@modules", replacement: fileURLToPath(new URL("./Modules", import.meta.url)) },
+			{ find: "@public", replacement: fileURLToPath(new URL("./public", import.meta.url)) },
+			{ find: "@web", replacement: fileURLToPath(new URL("./resources/views/web", import.meta.url)) },
+			{ find: "@manager", replacement: fileURLToPath(new URL("./resources/views/web/manager", import.meta.url)) },
+			{ find: "@components", replacement: fileURLToPath(new URL("./resources/views/components", import.meta.url)) },
+		],
 	},
 	build: {
 		sourcemap: true,
@@ -35,7 +37,7 @@ export default defineConfig({
 			output: {
 				manualChunks: {
 					"vue-chunk": ["vue", "@inertiajs/vue3", "@vueuse/core", "pinia"],
-					"vendor-chunk": [ "@ant-design/icons-vue", "ant-design-vue", "axios", "dayjs", "jobsys-newbie", "lodash-es","simplebar-vue"],
+					"vendor-chunk": ["@ant-design/icons-vue", "ant-design-vue", "axios", "dayjs", "jobsys-newbie", "lodash-es", "simplebar-vue"],
 				},
 			},
 		},

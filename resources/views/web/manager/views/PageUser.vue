@@ -40,7 +40,7 @@
 				<NewbieTable ref="list" title="账号列表" :columns="columns()" :url="route('api.manager.user.items', state.searchExtra)" row-selection>
 					<template #functional>
 						<NewbieButton v-if="$auth('api.manager.user.edit')" type="primary" :icon="h(PlusOutlined)" @click="onEdit(false)"
-							>新增账号
+						>新增账号
 						</NewbieButton>
 
 						<NewbieButton
@@ -48,7 +48,7 @@
 							:icon="h(ApartmentOutlined)"
 							@click="onBeforeEditDepartment"
 							class="ml-2"
-							>分配部门
+						>分配部门
 						</NewbieButton>
 					</template>
 				</NewbieTable>
@@ -308,7 +308,6 @@ const getForm = () => {
 			},
 			help: "可后续在账号管理中进行修改，可多选",
 		},
-
 		{
 			key: "password",
 			title: "用户密码",
@@ -319,25 +318,25 @@ const getForm = () => {
 					return h("div", {}, [
 						!state.showPassword
 							? h(
-									Button,
-									{
-										type: "primary",
-										onClick() {
-											state.showPassword = true
-										},
+								Button,
+								{
+									type: "primary",
+									onClick() {
+										state.showPassword = true
 									},
-									{ default: () => "修改密码" },
-							  )
+								},
+								{ default: () => "修改密码" },
+							)
 							: null,
 						state.showPassword
 							? h(NewbiePassword, {
-									modelValue: submitForm.password,
-									placeholder: "请输入密码",
-									style: { width: "200px" },
-									onChange(e) {
-										submitForm.password = e.target.value
-									},
-							  })
+								modelValue: submitForm.password,
+								placeholder: "请输入密码",
+								style: { width: "200px" },
+								onChange(e) {
+									submitForm.password = e.target.value
+								},
+							})
 							: null,
 					])
 				}
@@ -351,6 +350,10 @@ const getForm = () => {
 					},
 				})
 			},
+		},
+		{
+			key: "position",
+			title: "职位",
 		},
 		{
 			key: "email",
@@ -475,6 +478,14 @@ const columns = () => {
 						? record.departments.map((item) => h(Tag, { color: "cyan" }, { default: () => item.name }))
 						: h(Tag, {}, { default: () => "未分配" }),
 				)
+			},
+		},
+		{
+			title: "职位",
+			key: "position",
+			width: 100,
+			customRender({ record }) {
+				return record.position ? h(Tag, { color: "orange" }, record.position) : null
 			},
 		},
 		{
