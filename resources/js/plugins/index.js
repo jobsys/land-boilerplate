@@ -1,3 +1,4 @@
 import http from "./http"
+import httpMobile from "./httpMobile"
 
-export { http }
+export { http, httpMobile }

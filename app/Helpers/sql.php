@@ -1,11 +1,12 @@
 <?php
+
 use Carbon\CarbonPeriod;
 use Illuminate\Database\Eloquent\Builder;
 
 if (!function_exists('land_get_nested_data')) {
 	/**
 	 * 获取给定ID的所有子级ID
-	 * @param string $table  表名
+	 * @param string $table 表名
 	 * @param int $select_id 目标ID
 	 * @param bool $include_self 是否包含自身
 	 * @param string $id_key ID字段名
@@ -115,6 +116,16 @@ if (!function_exists('land_filterable')) {
 				$builder = match ($query['condition']) {
 					'equal' => $builder->whereIn($column, $query['value']),
 					'exclude' => $builder->whereNotIn($column, $query['value'])
+				};
+				break;
+			case "cascade":
+				if($query['condition'] !== 'include'){
+					$query['value'] = is_array($query['value']) ? end($query['value']) : $query['value'];
+				}
+				$builder = match ($query['condition']) {
+					'equal' => $builder->where($column, $query['value']),
+					'notEqual' => $builder->where($column, '!=', $query['value']),
+					'include' => $builder->whereIn($column, $query['value']),
 				};
 				break;
 			default:

@@ -17,9 +17,12 @@
             "@manager/*": [
                 "resources/views/web/manager/*"
             ],
+			"@mobile/*": [
+				"resources/views/mobile/*"
+			],
 			"@components/*": [
-				"resources/views/components/*"
-			]
+                "resources/views/components/*"
+            ]
         }
     }
 }

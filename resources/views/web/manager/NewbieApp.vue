@@ -5,7 +5,8 @@
 				colorPrimary: appConfig.primaryColor,
 			},
 		}"
-		:locale="zhCN">
+		:locale="zhCN"
+	>
 		<NewbieProvider v-bind="provider">
 			<slot></slot>
 		</NewbieProvider>
@@ -43,6 +44,9 @@ const provider = reactive({
 	},
 	form: {
 		afterFetched: (res) => res.result,
+		format: {
+			date: "YYYY-MM-DD HH:mm",
+		},
 	},
 	search: {
 		valueFormatter: {

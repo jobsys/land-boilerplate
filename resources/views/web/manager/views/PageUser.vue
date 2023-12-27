@@ -40,7 +40,7 @@
 				<NewbieTable ref="list" title="账号列表" :columns="columns()" :url="route('api.manager.user.items', state.searchExtra)" row-selection>
 					<template #functional>
 						<NewbieButton v-if="$auth('api.manager.user.edit')" type="primary" :icon="h(PlusOutlined)" @click="onEdit(false)"
-						>新增账号
+							>新增账号
 						</NewbieButton>
 
 						<NewbieButton
@@ -48,7 +48,7 @@
 							:icon="h(ApartmentOutlined)"
 							@click="onBeforeEditDepartment"
 							class="ml-2"
-						>分配部门
+							>分配部门
 						</NewbieButton>
 					</template>
 				</NewbieTable>
@@ -108,11 +108,10 @@
 <script setup>
 import { ApartmentOutlined, DeleteOutlined, EditOutlined, MoreOutlined, PlusOutlined } from "@ant-design/icons-vue"
 import { NewbiePassword, useTableActions } from "jobsys-newbie"
-import { useFetch, useDateFormat, useModalConfirm, useProcessStatusSuccess } from "jobsys-newbie/hooks"
+import { useDateFormat, useFetch, useModalConfirm, useProcessStatusSuccess, useSm3 } from "jobsys-newbie/hooks"
 import { h, inject, nextTick, reactive, ref, watch } from "vue"
 import { Button, message, Tag, TreeSelect } from "ant-design-vue"
 import { cloneDeep } from "lodash-es"
-import { useSm3 } from "jobsys-newbie/hooks"
 
 const { SHOW_ALL } = TreeSelect
 
@@ -277,6 +276,7 @@ const getForm = () => {
 			key: "phone",
 			required: true,
 			title: "手机号码",
+			rules: [{ required: true, message: "请填写正确的手机号码", pattern: /^1[3456789]\d{9}$/ }],
 		},
 		{
 			key: "departments",
@@ -318,25 +318,25 @@ const getForm = () => {
 					return h("div", {}, [
 						!state.showPassword
 							? h(
-								Button,
-								{
-									type: "primary",
-									onClick() {
-										state.showPassword = true
+									Button,
+									{
+										type: "primary",
+										onClick() {
+											state.showPassword = true
+										},
 									},
-								},
-								{ default: () => "修改密码" },
-							)
+									{ default: () => "修改密码" },
+							  )
 							: null,
 						state.showPassword
 							? h(NewbiePassword, {
-								modelValue: submitForm.password,
-								placeholder: "请输入密码",
-								style: { width: "200px" },
-								onChange(e) {
-									submitForm.password = e.target.value
-								},
-							})
+									modelValue: submitForm.password,
+									placeholder: "请输入密码",
+									style: { width: "200px" },
+									onChange(e) {
+										submitForm.password = e.target.value
+									},
+							  })
 							: null,
 					])
 				}
@@ -485,7 +485,7 @@ const columns = () => {
 			key: "position",
 			width: 100,
 			customRender({ record }) {
-				return record.position ? h(Tag, { color: "orange" }, record.position) : null
+				return record.position ? h(Tag, { color: "orange" }, () => record.position) : null
 			},
 		},
 		{

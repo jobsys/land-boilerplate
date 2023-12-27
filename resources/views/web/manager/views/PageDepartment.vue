@@ -5,7 +5,7 @@
 		:columns="columns()"
 		:pagination="false"
 		:filterable="false"
-		:after-fetched="myFetched"
+		:after-fetched="onAfterFetched"
 	>
 		<template #functional>
 			<NewbieButton v-if="$auth('api.manager.department.edit')" type="primary" :icon="h(PlusOutlined)" @click="onEdit(false)"
@@ -47,7 +47,7 @@ const state = reactive({
 	url: "",
 })
 
-const myFetched = (res) => {
+const onAfterFetched = (res) => {
 	state.options = res.result
 	return {
 		items: res.result.map((item) => {
