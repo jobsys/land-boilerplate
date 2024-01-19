@@ -135,3 +135,19 @@ if (!function_exists('land_filterable')) {
 		return $builder;
 	}
 }
+
+
+if (!function_exists('land_sortable')) {
+	/**
+	 * 通用的查询排序器，用于配合 NewbieSearch 1.9.0 以上版本
+	 * @param string $column
+	 * @param Builder $builder
+	 * @param string $direction
+	 * @return Builder
+	 */
+	function land_sortable(string $column, Builder $builder, string $direction): Builder
+	{
+		return $builder->orderBy($column, $direction);
+	}
+}
+
