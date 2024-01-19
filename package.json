@@ -9,7 +9,7 @@
 		"@ant-design/icons-vue": "^6.1.0",
 		"@inertiajs/vue3": "1.0.11",
 		"@vueuse/core": "^10.3.0",
-		"ant-design-vue": "^4.0.1",
+		"ant-design-vue": "^4.1.0",
 		"axios": "^1.4.0",
 		"dayjs": "^1.11.9",
 		"jobsys-newbie": "^1.8.0",
