@@ -32,7 +32,8 @@ return [
                     "api.manager.user.item" => "查看账号详情",
                     "api.manager.user.delete" => "删除账号",
                     "api.manager.user.department" => "分配部门",
-                ]
+					"api.manager.user.import" => "账号导入",
+				]
             ],
             "page.manager.center.profile" => [
                 "display_name" => "个人设置",

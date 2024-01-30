@@ -29,6 +29,8 @@ Route::prefix("manager")->name("api.manager.")->group(function () {
     Route::get('/user/{id}', [\App\Http\Controllers\Manager\UserController::class, 'item'])->where('id', '[0-9]+')->name('user.item');
     Route::post('/user/delete', [\App\Http\Controllers\Manager\UserController::class, 'delete'])->name('user.delete');
     Route::post('/user/department', [\App\Http\Controllers\Manager\UserController::class, 'department'])->name('user.department');
+	Route::post('/user/import', [\App\Http\Controllers\Manager\UserController::class, 'import'])->name('user.import');
+
 });
 
 

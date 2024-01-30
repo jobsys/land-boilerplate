@@ -40,7 +40,15 @@
 				<NewbieTable ref="list" title="账号列表" :columns="columns()" :url="route('api.manager.user.items', state.searchExtra)" row-selection>
 					<template #functional>
 						<NewbieButton v-if="$auth('api.manager.user.edit')" type="primary" :icon="h(PlusOutlined)" @click="onEdit(false)"
-							>新增账号
+						>新增账号
+						</NewbieButton>
+
+						<NewbieButton
+							v-if="$auth('api.manager.user.import')"
+							:icon="h(ImportOutlined)"
+							class="ml-2"
+							@click="() => userImportRef.openImporter()"
+						>导入账号
 						</NewbieButton>
 
 						<NewbieButton
@@ -48,7 +56,7 @@
 							:icon="h(ApartmentOutlined)"
 							@click="onBeforeEditDepartment"
 							class="ml-2"
-							>分配部门
+						>分配部门
 						</NewbieButton>
 					</template>
 				</NewbieTable>
@@ -102,16 +110,25 @@
 				</a-form-item>
 			</a-form>
 		</NewbieModal>
+
+		<NewbieImporter
+			ref="userImportRef"
+			:url="route('api.manager.user.import')"
+			template-url="/templates/user-import-template.xlsx"
+			:progress-url="route('api.manager.import-export.progress')"
+			:tips="['模板中红色字段为必填项']"
+		/>
 	</div>
 </template>
 
 <script setup>
-import { ApartmentOutlined, DeleteOutlined, EditOutlined, MoreOutlined, PlusOutlined } from "@ant-design/icons-vue"
+import { ApartmentOutlined, DeleteOutlined, EditOutlined, ImportOutlined, MoreOutlined, PlusOutlined } from "@ant-design/icons-vue"
 import { NewbiePassword, useTableActions } from "jobsys-newbie"
 import { useDateFormat, useFetch, useModalConfirm, useProcessStatusSuccess, useSm3 } from "jobsys-newbie/hooks"
 import { h, inject, nextTick, reactive, ref, watch } from "vue"
 import { Button, message, Tag, TreeSelect } from "ant-design-vue"
 import { cloneDeep } from "lodash-es"
+import NewbieImporter from "@modules/Importexport/Resources/views/web/components/NewbieImporter.vue"
 
 const { SHOW_ALL } = TreeSelect
 
@@ -131,6 +148,7 @@ const route = inject("route")
 
 const list = ref(null)
 const edit = ref(null)
+const userImportRef = ref(null)
 
 const departmentOptions = cloneDeep(props.departments)
 departmentOptions.unshift({ id: "-1", name: "未分配" })
@@ -318,25 +336,25 @@ const getForm = () => {
 					return h("div", {}, [
 						!state.showPassword
 							? h(
-									Button,
-									{
-										type: "primary",
-										onClick() {
-											state.showPassword = true
-										},
+								Button,
+								{
+									type: "primary",
+									onClick() {
+										state.showPassword = true
 									},
-									{ default: () => "修改密码" },
-							  )
+								},
+								{ default: () => "修改密码" },
+							)
 							: null,
 						state.showPassword
 							? h(NewbiePassword, {
-									modelValue: submitForm.password,
-									placeholder: "请输入密码",
-									style: { width: "200px" },
-									onChange(e) {
-										submitForm.password = e.target.value
-									},
-							  })
+								modelValue: submitForm.password,
+								placeholder: "请输入密码",
+								style: { width: "200px" },
+								onChange(e) {
+									submitForm.password = e.target.value
+								},
+							})
 							: null,
 					])
 				}
@@ -448,7 +466,7 @@ const columns = () => {
 		{
 			title: "用户角色",
 			key: "roles",
-			width: 100,
+			width: 140,
 			customRender({ record }) {
 				return h(
 					"div",
@@ -469,7 +487,7 @@ const columns = () => {
 		{
 			title: "所属部门",
 			key: "departments",
-			width: 100,
+			width: 140,
 			customRender({ record }) {
 				return h(
 					"div",
@@ -504,7 +522,7 @@ const columns = () => {
 		{
 			title: "上次登录时间",
 			key: "last_login_at",
-			width: 100,
+			width: 140,
 			customRender({ record }) {
 				return h("span", {}, useDateFormat(record.last_login_at))
 			},
@@ -512,7 +530,8 @@ const columns = () => {
 		{
 			title: "上次登录IP",
 			dataIndex: "last_login_ip",
-			width: 100,
+			width: 140,
+			ellipsis: true,
 		},
 		{
 			title: "操作",

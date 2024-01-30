@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Manager;
 
 use App\Http\Controllers\BaseManagerController;
+use App\Importers\UserImporter;
 use App\Models\Department;
 use App\Models\User;
 use App\Services\UserService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Modules\ImportExport\Services\ImportExportService;
 use Modules\Permission\Entities\Role;
 use Modules\Starter\Emnus\State;
 
@@ -177,6 +179,46 @@ class UserController extends BaseManagerController
 		return $this->json();
 
 
+	}
+
+	public function import(Request $request, ImportExportService $service)
+	{
+
+		$departmentMap = [];
+		$roleMap = [];
+
+		$departments = Department::get(['id', 'name']);
+		$roles = Role::get(['id', 'display_name']);
+
+		$departments->each(function (Department $department) use (&$departmentMap) {
+			$departmentMap[$department->name] = $department->id;
+		});
+		$roles->each(function (Role $role) use (&$roleMap) {
+			$roleMap[$role->display_name] = $role->id;
+		});
+
+
+		$fields = [
+			['field' => 'name', 'label' => '姓名', 'rule' => 'required'],
+			['field' => 'work_num', 'label' => '工号', 'rule' => 'nullable|unique:users'],
+			['field' => 'phone', 'label' => '手机号码', 'rule' => 'required|unique:users|regex:/^1[3456789]\d{9}$/'],
+			['field' => 'email', 'label' => '电子邮箱', 'rule' => 'nullable|email|unique:users'],
+			['field' => 'role', 'label' => '用户角色', 'rule' => 'nullable|in:' . implode(',', $roles->pluck('display_name')->toArray())],
+			['field' => 'department', 'label' => '所属部门', 'rule' => 'nullable|in:' . implode(',', $departments->pluck('name')->toArray())],
+			['field' => 'position', 'label' => '职位'],
+			['field' => 'password', 'label' => '初始密码'],
+		];
+
+		list($result, $error) = $service->import('用户信息导入', UserImporter::class, $fields, ['roleMap' => $roleMap, 'departmentMap' => $departmentMap]);
+
+
+		if ($error) {
+			return $this->message($error);
+		}
+
+		log_access('用户信息导入');
+
+		return $this->json($result);
 	}
 
 }
