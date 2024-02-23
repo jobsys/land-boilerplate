@@ -88,7 +88,7 @@ class UserController extends BaseManagerController
 	public function edit(Request $request, UserService $userService)
 	{
 		list($input, $error) = land_form_validate(
-			$request->only(['id', 'name', 'nickname', 'work_num', 'avatar', 'phone', 'position', 'roles', 'departments', 'email', 'password']),
+			$request->only(['id', 'name', 'nickname', 'work_num', 'avatar', 'phone', 'position', 'roles', 'departments', 'email', 'password', 'is_active']),
 			[
 				'name' => 'bail|required|string',
 				'phone' => 'bail|required|string',
