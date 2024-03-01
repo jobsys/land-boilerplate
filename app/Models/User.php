@@ -32,7 +32,7 @@ class User extends Authenticatable
 
 
     public $appends = [
-        'type'
+        'model_type'
     ];
 
     /**
@@ -65,7 +65,7 @@ class User extends Authenticatable
         return $this->morphOne(SnsUser::class, 'snsable');
     }
 
-    public function getTypeAttribute(): string
+    public function getModelTypeAttribute(): string
     {
         return 'user';
     }

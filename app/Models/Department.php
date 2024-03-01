@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Modules\Permission\Traits\Authorisations;
 use Modules\Starter\Entities\BaseModel;
 
@@ -20,17 +19,12 @@ class Department extends BaseModel
         return $this->belongsToMany(User::class);
     }
 
-    public function students(): HasMany
-    {
-        return $this->hasMany(Student::class);
-    }
-
 
     public $appends = [
-        'type'
+        'model_type'
     ];
 
-    public function getTypeAttribute(): string
+    public function getModelTypeAttribute(): string
     {
         return 'department';
     }

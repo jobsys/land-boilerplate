@@ -13,7 +13,12 @@ return [
     //登录字段
     'login_field' => ['name'],
 
+	######## 业务配置 ########
+	//是否启用微信
+	'wechat_channel' => env('WECHAT_CHANNEL'),
+
     ######## 以下配置项为客户化配置项，需要在.env中配置 ########
-    //默认客户标识
-    'customer_identify' => env('CUSTOMER_IDENTIFY', 'default'),
+	//默认客户标识
+	'customer_identify' => env('SCHOOL_CODE', 'default'),
+	'customer_name' => env('SCHOOL_NAME', 'default'),
 ];
