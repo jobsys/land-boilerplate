@@ -275,38 +275,3 @@ if (!function_exists('land_fake_phone')) {
 		return substr($phone, 0, 3) . '****' . substr($phone, -4);
 	}
 }
-
-if (!function_exists('land_snapshot')) {
-	/**
-	 * 创建对象快照
-	 * @param Model $model
-	 * @param $table_name
-	 * @return array
-	 */
-	function land_snapshot(Model $model, $table_name = null): array
-	{
-		if (!$table_name) {
-			$table_name = $model->getTable() . '_snapshots';
-		}
-		$exist_snapshot = Schema::hasTable($table_name);
-
-		if (!$exist_snapshot) {
-			return [null, '快照表不存在'];
-		}
-
-		$snapshot = array_merge($model->getOriginal(), [
-			'snapshot_at' => now(),
-			'snapshot_user_id' => auth()->check() ? auth()->id() : null,
-		]);
-
-		foreach ($snapshot as $key => $value) {
-			if (is_array($value)) {
-				$snapshot[$key] = json_encode($value);
-			}
-		}
-
-		DB::table($table_name)->insert($snapshot);
-
-		return [true, null];
-	}
-}
