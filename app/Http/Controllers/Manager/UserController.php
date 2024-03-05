@@ -17,16 +17,12 @@ class UserController extends BaseManagerController
 {
 	public function pageUser()
 	{
-		$departments = Department::all()->map(function ($item) {
-			$item->{'value'} = $item->id;
-			$item->{'title'} = $item->name;
-			return $item;
-		});
-		$departments = land_classify($departments);
+		$departments = land_get_closure_tree(Department::where('parent_id', null)->get(['id', 'name']));
 		$roles = Role::orderBy('sort_order', 'DESC')->where('is_active', true)->get();
 
 		return Inertia::render('PageUser', compact('departments', 'roles'));
 	}
+
 
 	public function items(Request $request)
 	{

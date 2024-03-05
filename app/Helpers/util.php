@@ -5,9 +5,7 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Request;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use OneSm\Sm3;
 
@@ -57,6 +55,29 @@ if (!function_exists('land_classify')) {
 	}
 }
 
+
+if (!function_exists('land_get_closure_tree')) {
+	function land_get_closure_tree($items, string $children_key = 'children'): array
+	{
+		$single = false;
+
+		if ($items instanceof Model) {
+			$items = collect($items);
+			$single = true;
+		}
+
+		$items = $items->map(function (\Franzose\ClosureTable\Models\Entity $item) use ($children_key) {
+			$children = $item->getDescendants()->toTree()->toArray();
+			if ($children && count($children)) {
+				$item->{$children_key} = $item->getDescendants()->toTree()->toArray();
+			}
+			return $item;
+		})->toArray();
+
+		return $single ? $items->first() : $items;
+	}
+}
+
 if (!function_exists('land_tidy_tree')) {
 	/**
 	 * 对树形结构进行整理
@@ -78,7 +99,6 @@ if (!function_exists('land_tidy_tree')) {
 		return $tree;
 	}
 }
-
 
 if (!function_exists('land_recursive_accumulate')) {
 	/**

@@ -32,7 +32,7 @@ class SetupSeeder extends Seeder
         if (!Department::find(1)) {
             Department::create([
                 "id" => 1,
-                "parent_id" => 0,
+                "parent_id" => null,
                 "creator_id" => 1,
                 "principal_id" => 0,
                 "name" => "系统管理部门",

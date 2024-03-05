@@ -2,71 +2,68 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Modules\Permission\Traits\Authorisations;
 use Modules\Starter\Traits\Filterable;
+use Modules\Starter\Traits\MessageReceiver;
+use Modules\Starter\Traits\Accessable;
+use Modules\Starter\Traits\Snsable;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, HasRoles, Authorisations, Filterable;
+	use HasApiTokens, HasFactory, Notifiable, HasRoles, Authorisations, Filterable, MessageReceiver, Snsable, Accessable;
 
-    protected $guarded = [];
+	protected $guarded = [];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
-    protected $hidden = [
-        'password',
-        'password_salt',
-        'remember_token',
-    ];
+	/**
+	 * The attributes that should be hidden for serialization.
+	 *
+	 * @var array<int, string>
+	 */
+	protected $hidden = [
+		'password',
+		'password_salt',
+		'remember_token',
+	];
 
 
-    public $appends = [
-        'model_type'
-    ];
+	public $appends = [
+		'model_type'
+	];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'avatar' => 'array',
-        'email_verified_at' => 'datetime',
-        'sms_verified_at' => 'datetime',
-        'last_login_error_at' => 'datetime',
-        'last_login_at' => 'datetime',
-        'last_password_modify_at' => 'datetime',
-        'is_active' => 'boolean',
-    ];
+	/**
+	 * The attributes that should be cast.
+	 *
+	 * @var array<string, string>
+	 */
+	protected $casts = [
+		'avatar' => 'array',
+		'email_verified_at' => 'datetime',
+		'sms_verified_at' => 'datetime',
+		'last_login_error_at' => 'datetime',
+		'last_login_at' => 'datetime',
+		'last_password_modify_at' => 'datetime',
+		'is_active' => 'boolean',
+	];
 
-    public function departments(): BelongsToMany
-    {
-        return $this->belongsToMany(Department::class);
-    }
+	public function departments(): BelongsToMany
+	{
+		return $this->belongsToMany(Department::class);
+	}
 
-    public function isSuperAdmin(): bool
-    {
-        return session('user_role') === config('conf.super_role', 'super-admin');
-    }
+	public function isSuperAdmin(): bool
+	{
+		return session('user_role') === config('conf.super_role', 'super-admin');
+	}
 
-    public function sns(): MorphOne
-    {
-        return $this->morphOne(SnsUser::class, 'snsable');
-    }
 
-    public function getModelTypeAttribute(): string
-    {
-        return 'user';
-    }
+	public function getModelTypeAttribute(): string
+	{
+		return 'user';
+	}
 }
