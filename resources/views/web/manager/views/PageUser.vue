@@ -4,7 +4,8 @@
 			<a-col span="5">
 				<a-card size="small" :loading="state.departmentLoading.loading">
 					<template #title>
-						<a-input-search v-model:value="state.searchValue" allow-clear placeholder="搜索部门" size="small" />
+						<a-input-search v-model:value="state.searchValue" allow-clear placeholder="搜索部门"
+										size="small"/>
 					</template>
 					<template #extra>
 						<a-dropdown>
@@ -37,9 +38,11 @@
 				</a-card>
 			</a-col>
 			<a-col span="19">
-				<NewbieTable ref="list" title="账号列表" :columns="columns()" :url="route('api.manager.user.items', state.searchExtra)" row-selection>
+				<NewbieTable ref="list" title="账号列表" :columns="columns()"
+							 :url="route('api.manager.user.items', state.searchExtra)" row-selection>
 					<template #functional>
-						<NewbieButton v-if="$auth('api.manager.user.edit')" type="primary" :icon="h(PlusOutlined)" @click="onEdit(false)"
+						<NewbieButton v-if="$auth('api.manager.user.edit')" type="primary" :icon="h(PlusOutlined)"
+									  @click="onEdit(false)"
 						>新增账号
 						</NewbieButton>
 
@@ -99,14 +102,16 @@
 						<a-radio-button value="overwrite">覆盖</a-radio-button>
 					</a-radio-group>
 					<template #help>
-						<p class="mt-1">添加：在用户原属部门的基础上追加本次的部门设置<br />覆盖：将移除用户原有部门信息，以本次设置为准</p>
+						<p class="mt-1">添加：在用户原属部门的基础上追加本次的部门设置<br/>覆盖：将移除用户原有部门信息，以本次设置为准
+						</p>
 					</template>
 				</a-form-item>
 
-				<a-divider />
+				<a-divider/>
 
 				<a-form-item :wrapper-col="{ offset: 10 }">
-					<NewbieButton :fetcher="state.editDepartmentFetcher" type="primary" @click="onSaveDepartment">保存 </NewbieButton>
+					<NewbieButton :fetcher="state.editDepartmentFetcher" type="primary" @click="onSaveDepartment">保存
+					</NewbieButton>
 				</a-form-item>
 			</a-form>
 		</NewbieModal>
@@ -122,7 +127,14 @@
 </template>
 
 <script setup>
-import { ApartmentOutlined, DeleteOutlined, EditOutlined, ImportOutlined, MoreOutlined, PlusOutlined } from "@ant-design/icons-vue"
+import {
+	ApartmentOutlined,
+	DeleteOutlined,
+	EditOutlined,
+	ImportOutlined,
+	MoreOutlined,
+	PlusOutlined
+} from "@ant-design/icons-vue"
 import { NewbiePassword, useTableActions } from "jobsys-newbie"
 import { useDateFormat, useFetch, useModalConfirm, useProcessStatusSuccess, useSm3 } from "jobsys-newbie/hooks"
 import { h, inject, nextTick, reactive, ref, watch } from "vue"
@@ -130,7 +142,7 @@ import { Button, message, Tag, TreeSelect } from "ant-design-vue"
 import { cloneDeep } from "lodash-es"
 import NewbieImporter from "@modules/Importexport/Resources/views/web/components/NewbieImporter.vue"
 
-const { SHOW_ALL } = TreeSelect
+const {SHOW_ALL} = TreeSelect
 
 const props = defineProps({
 	departments: {
@@ -151,24 +163,24 @@ const edit = ref(null)
 const userImportRef = ref(null)
 
 const departmentOptions = cloneDeep(props.departments)
-departmentOptions.unshift({ id: "-1", name: "未分配" })
+departmentOptions.unshift({id: "-1", name: "未分配"})
 
 const departmentSelectableOptions = cloneDeep(props.departments)
 
 const state = reactive({
-	departmentLoading: { loading: false },
+	departmentLoading: {loading: false},
 	departmentOptions,
 	departmentSelectableOptions,
 	searchValue: "",
 	expandedKeys: [],
 	searchExtra: {},
-	roleOptions: props.roles.map((item) => ({ label: item.display_name, value: item.id })),
+	roleOptions: props.roles.map((item) => ({label: item.display_name, value: item.id})),
 	showUserEditor: false,
 	url: "",
 	showPassword: false,
 
 	showDepartmentEditEditor: false,
-	editDepartmentFetcher: { loading: false },
+	editDepartmentFetcher: {loading: false},
 })
 
 const departmentEditForm = reactive({
@@ -180,7 +192,7 @@ const departmentEditForm = reactive({
 const allKeys = []
 let inExpandKey = []
 
-const toggleTree = ({ key }) => {
+const toggleTree = ({key}) => {
 	if (key === "open") {
 		state.expandedKeys = cloneDeep(allKeys)
 	} else {
@@ -294,7 +306,7 @@ const getForm = () => {
 			key: "phone",
 			required: true,
 			title: "手机号码",
-			rules: [{ required: true, message: "请填写正确的手机号码", pattern: /^1[3456789]\d{9}$/ }],
+			rules: [{required: true, message: "请填写正确的手机号码", pattern: /^1[3456789]\d{9}$/}],
 		},
 		{
 			key: "departments",
@@ -330,7 +342,7 @@ const getForm = () => {
 			key: "password",
 			title: "用户密码",
 			message: "请填写密码",
-			customRender: ({ submitForm }) => {
+			customRender: ({submitForm}) => {
 				if (submitForm.id) {
 					// 显示一个按钮，点击后显示密码输入框
 					return h("div", {}, [
@@ -343,14 +355,14 @@ const getForm = () => {
 										state.showPassword = true
 									},
 								},
-								{ default: () => "修改密码" },
+								{default: () => "修改密码"},
 							)
 							: null,
 						state.showPassword
 							? h(NewbiePassword, {
 								modelValue: submitForm.password,
 								placeholder: "请输入密码",
-								style: { width: "200px" },
+								style: {width: "200px"},
 								onChange(e) {
 									submitForm.password = e.target.value
 								},
@@ -362,7 +374,7 @@ const getForm = () => {
 				return h(NewbiePassword, {
 					modelValue: submitForm.password,
 					placeholder: "请输入密码",
-					style: { width: "200px" },
+					style: {width: "200px"},
 					onChange(e) {
 						submitForm.password = e.target.value
 					},
@@ -388,7 +400,7 @@ const getForm = () => {
 }
 
 const onEdit = (id) => {
-	state.url = id ? route("api.manager.user.item", { id }) : ""
+	state.url = id ? route("api.manager.user.item", {id}) : ""
 	state.showUserEditor = true
 }
 
@@ -404,7 +416,7 @@ const onDelete = (item) => {
 		`您确认要删除 ${item.name} 吗？`,
 		async () => {
 			try {
-				const res = await useFetch().post(route("api.manager.user.delete"), { id: item.id })
+				const res = await useFetch().post(route("api.manager.user.delete"), {id: item.id})
 				modal.destroy()
 				useProcessStatusSuccess(res, () => {
 					message.success("删除成功")
@@ -418,7 +430,7 @@ const onDelete = (item) => {
 	)
 }
 
-const onBeforeSubmit = ({ formatForm }) => {
+const onBeforeSubmit = ({formatForm}) => {
 	if (formatForm.password) {
 		formatForm.password = useSm3(formatForm.password)
 	}
@@ -428,7 +440,7 @@ const onBeforeSubmit = ({ formatForm }) => {
 
 const onAfterFetch = (res) => {
 	const data = res.result
-	data.departments = data.departments.map((item) => ({ label: item.name, value: item.id }))
+	data.departments = data.departments.map((item) => ({label: item.name, value: item.id}))
 	data.roles = data.roles.map((item) => item.id)
 	return data
 }
@@ -467,19 +479,19 @@ const columns = () => {
 			title: "用户角色",
 			key: "roles",
 			width: 140,
-			customRender({ record }) {
+			customRender({record}) {
 				return h(
 					"div",
 					{},
 					record.roles.length
-						? record.roles.map((item) => h(Tag, { color: "blue" }, { default: () => item.display_name }))
-						: h(Tag, {}, { default: () => "未分配" }),
+						? record.roles.map((item) => h(Tag, {color: "blue"}, {default: () => item.display_name}))
+						: h(Tag, {}, {default: () => "未分配"}),
 				)
 			},
 			filterable: {
 				key: "role_id",
 				type: "select",
-				options: [{ label: "未分配", value: -1 }, ...state.roleOptions],
+				options: [{label: "未分配", value: -1}, ...state.roleOptions],
 				conditions: ["equal"],
 				expandable: true,
 			},
@@ -488,13 +500,13 @@ const columns = () => {
 			title: "所属部门",
 			key: "departments",
 			width: 140,
-			customRender({ record }) {
+			customRender({record}) {
 				return h(
 					"div",
 					{},
 					record.departments.length
-						? record.departments.map((item) => h(Tag, { color: "cyan" }, { default: () => item.name }))
-						: h(Tag, {}, { default: () => "未分配" }),
+						? record.departments.map((item) => h(Tag, {color: "cyan"}, {default: () => item.name}))
+						: h(Tag, {}, {default: () => "未分配"}),
 				)
 			},
 		},
@@ -502,8 +514,8 @@ const columns = () => {
 			title: "职位",
 			key: "position",
 			width: 100,
-			customRender({ record }) {
-				return record.position ? h(Tag, { color: "orange" }, () => record.position) : null
+			customRender({record}) {
+				return record.position ? h(Tag, {color: "orange"}, () => record.position) : null
 			},
 		},
 		{
@@ -511,11 +523,11 @@ const columns = () => {
 			key: "is_active",
 			width: 80,
 			align: "center",
-			customRender({ record }) {
+			customRender({record}) {
 				return useTableActions({
 					type: "tag",
 					name: record.is_active ? "正常" : "禁用",
-					props: { color: record.is_active ? "green" : "red" },
+					props: {color: record.is_active ? "green" : "red"},
 				})
 			},
 		},
@@ -523,7 +535,7 @@ const columns = () => {
 			title: "上次登录时间",
 			key: "last_login_at",
 			width: 140,
-			customRender({ record }) {
+			customRender({record}) {
 				return h("span", {}, useDateFormat(record.last_login_at))
 			},
 		},
@@ -539,7 +551,7 @@ const columns = () => {
 			key: "operation",
 			align: "center",
 			fixed: "right",
-			customRender({ record }) {
+			customRender({record}) {
 				const actions = []
 
 				if (auth("api.manager.user.edit")) {
