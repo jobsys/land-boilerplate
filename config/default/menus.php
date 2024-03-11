@@ -26,7 +26,7 @@ return [
     ],
     [
         "displayName" => "个人中心",
-        "icon" => "iconfont-user-line",
+        "icon" => "UserOutlined",
         "key"=> "user_center",
         "children" =>[
             [
@@ -41,7 +41,7 @@ return [
     ],
     [
         "displayName" => "系统设置",
-        "icon" => "iconfont-settings--line1",
+        "icon" => "SettingOutlined",
         "key" => "system_management",
         "children" => [
             [

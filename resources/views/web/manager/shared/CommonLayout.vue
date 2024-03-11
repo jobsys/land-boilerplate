@@ -11,13 +11,13 @@
 					<template v-for="item in menuItems" :key="item.page || item.key">
 						<a-sub-menu v-if="item.children && item.children.length" :key="item.page || item.key">
 							<template v-if="item.icon" #icon>
-								<!--								<NewbieIcon :icon="item.icon"></NewbieIcon>-->
+								<Component :is="Icons[item.icon]"></Component>
 							</template>
 							<template #title>{{ item.displayName }}</template>
 							<a-menu-item v-for="child in item.children" :key="child.page">
 								<Link :href="route(child.page)">
 									<template v-if="child.icon">
-										<!--										<NewbieIcon :icon="child.icon"></NewbieIcon>-->
+										<Component :is="Icons[item.icon]"></Component>
 									</template>
 									<span>{{ child.displayName }}</span>
 								</Link>
@@ -26,7 +26,7 @@
 						<a-menu-item v-else :key="item.page || item.key">
 							<Link :href="route(item.page)">
 								<template v-if="item.icon">
-									<!--									<NewbieIcon :icon="item.icon"></NewbieIcon>-->
+									<Component :is="Icons[item.icon]"></Component>
 								</template>
 								<span>{{ item.displayName }}</span>
 							</Link>
@@ -116,7 +116,6 @@
 							:href="bread.href"
 							@click="() => bread.href && router.visit(bread.href)"
 						>
-							<!--							<NewbieIcon v-if="bread.icon" :icon="bread.icon"></NewbieIcon>-->
 							{{ bread.label }}
 						</a-breadcrumb-item>
 					</a-breadcrumb>
@@ -129,7 +128,7 @@
 				class="text-center !text-gray-300 font-bold !py-2 !text-[12px] fixed bottom-0 right-0 !bg-transparent z-0"
 				:class="[isCollapsed ? 'left-[80px]' : 'left-[240px]']"
 			>
-				<p class="mb-1">XXXXXXXX管理系统 ©版权所属：XXXXXXXXX</p>
+				<p class="mb-1">职迅XXXX管理系统 ©版权所属</p>
 				<p class="mb-0">技术支持： <a href="https://jobsys.cn" target="_blank" class="text-gray-300 font-bold">职迅科技 JOBSYS.cn</a></p>
 			</a-layout-footer>
 		</a-layout>
@@ -146,6 +145,7 @@ import DefaultAvatar from "@public/images/default-avatar.png"
 import { useNotificationStore, useUserStore } from "@manager/stores"
 import { find } from "lodash-es"
 import NotificationBox from "@modules/Starter/Resources/views/web/components/NotificationBox.vue"
+import Icons from "./icons"
 
 const route = inject("route")
 
