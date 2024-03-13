@@ -42,11 +42,10 @@ class AppServiceProvider extends ServiceProvider
 
 		//为本地存储设置临时链接
 		Storage::disk('local')->buildTemporaryUrlsUsing(function ($path, $expiration, $options) {
-			//由于本地存储的路径中包含了 /，所以需要将 / 替换为 -，避免生成的临时链接中出现 / 导致路由混淆
 			return URL::temporarySignedRoute(
 				'local.temp',
 				$expiration,
-				array_merge($options, ['path' => str_replace('/', '-', $path)])
+				array_merge($options, ['path' => $path])
 			);
 		});
 	}
