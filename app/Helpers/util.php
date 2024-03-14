@@ -240,7 +240,11 @@ if (!function_exists('land_config')) {
 	{
 		$customer_identify = config("conf.customer_identify", "default");
 
-		return config("{$customer_identify}.{$key}", $default);
+		if (config()->has("{$customer_identify}.{$key}")) {
+			return config("{$customer_identify}.{$key}");
+		} else {
+			return config("default.{$key}");
+		}
 	}
 }
 
