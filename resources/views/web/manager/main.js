@@ -54,7 +54,7 @@ createInertiaApp({
 
 		// 先初始化用户信息再挂载App
 		const userStore = useUserStore()
-		userStore.init(window.starterInit || {})
+		userStore.init(window.landUserSetup || {})
 
 		app.use(auth, { defaultPermissions: userStore.permissions })
 

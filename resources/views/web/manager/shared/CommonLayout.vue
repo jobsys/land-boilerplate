@@ -3,7 +3,7 @@
 		<a-layout-sider v-model:collapsed="isCollapsed" collapsible class="overflow-auto h-screen !fixed left-0 top-0 bottom-0" width="240">
 			<div class="logo">
 				<a href="#" class="flex items-center justify-center !bg-[#002140]">
-					<img :src="isCollapsed ? LogoMini : Logo" />
+					<img :src="isCollapsed ? miniLogoUrl : logoUrl" />
 				</a>
 			</div>
 			<simplebar style="height: calc(100% - 60px)" :auto-hide="false">
@@ -139,13 +139,12 @@ import { router, Link } from "@inertiajs/vue3"
 import { computed, inject, ref } from "vue"
 import { UserOutlined, LockOutlined, LogoutOutlined, PlusSquareOutlined, BellOutlined } from "@ant-design/icons-vue"
 import simplebar from "simplebar-vue"
-import Logo from "@public/images/logo.png"
-import LogoMini from "@public/images/logo-mini.png"
 import DefaultAvatar from "@public/images/default-avatar.png"
 import { useNotificationStore, useUserStore } from "@manager/stores"
 import { find } from "lodash-es"
 import NotificationBox from "@modules/Starter/Resources/views/web/components/NotificationBox.vue"
 import Icons from "./icons"
+import { useLandCustomerAsset } from "@/js/hooks/land"
 
 const route = inject("route")
 
@@ -162,6 +161,9 @@ const openKeys = ref([]) // 当前展开的菜单
 const selectedKeys = ref([]) // 当前选中的菜单
 const isCollapsed = ref(false) // 菜单是否折叠
 const breads = ref([]) // 面包屑
+
+const miniLogoUrl = useLandCustomerAsset("/images/default/logo-mini.png")
+const logoUrl = useLandCustomerAsset("/images/default/logo.png")
 
 const setupMenu = (currentPage) => {
 	breads.value = []

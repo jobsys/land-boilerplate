@@ -14,11 +14,11 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-
-        $this->call([
-            PermissionDatabaseSeeder::class,
-            SetupSeeder::class
-        ]);
-
+		$identify = ucfirst(config('conf.customer_identify'));
+		$this->call([
+			SetupSeeder::class,
+			PermissionDatabaseSeeder::class,
+			"Database\\Seeders\\Dict{$identify}Seeder"
+		]);
     }
 }
