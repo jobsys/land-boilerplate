@@ -157,7 +157,7 @@ if (!function_exists('land_filterable')) {
 
 if (!function_exists('land_sortable')) {
 	/**
-	 * 通用的查询过滤器，用于配合 NewbieSearch
+	 * 通用的查询排序器，用于配合 NewbieSearch 1.9.0 以上版本
 	 * @param string $column
 	 * @param Builder $builder
 	 * @param string $direction
