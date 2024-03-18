@@ -9,7 +9,7 @@ use App\Models\User;
 use App\Services\UserService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Modules\ImportExport\Services\ImportExportService;
+use Modules\Importexport\Services\ImportexportService;
 use Modules\Permission\Entities\Role;
 use Modules\Starter\Emnus\State;
 
@@ -23,10 +23,10 @@ class UserController extends BaseManagerController
 		return Inertia::render('PageUser', compact('departments', 'roles'));
 	}
 
-
 	public function items(Request $request)
 	{
 		$super_admin_name = config('conf.super_admin_name', false);
+		$department_id = request('department_id', false);
 
 		$query = User::authorise()->with(['departments:id,name', 'roles:id,display_name'])
 			->filterable([
@@ -39,18 +39,17 @@ class UserController extends BaseManagerController
 							$query->where('id', $role_id);
 						});
 					}
-				},
-				'department_id' => function ($builder, $query) {
-					$department_id = $query['value'];
-					if ($department_id == -1) {
-						return $builder->doesntHave('departments');
-					} else {
-						return $builder->whereHas('departments', function ($query) use ($department_id) {
-							$query->where('id', $department_id);
-						});
-					}
 				}
 			])
+			->when($department_id, function ($query) use ($department_id) {
+				if ($department_id == -1) {
+					return $query->doesntHave('departments');
+				} else {
+					return $query->whereHas('departments', function ($query) use ($department_id) {
+						$query->where('id', $department_id);
+					});
+				}
+			})
 			->when($super_admin_name, function ($query, $super_admin_name) {
 				$query->where('name', '<>', $super_admin_name);
 			})->orderByDesc('created_at');
@@ -177,7 +176,7 @@ class UserController extends BaseManagerController
 
 	}
 
-	public function import(Request $request, ImportExportService $service)
+	public function import(Request $request, ImportexportService $service)
 	{
 
 		$departmentMap = [];
