@@ -77,25 +77,39 @@ if (!function_exists('land_filterable')) {
 			case "input":
 				$builder = match ($query['condition']) {
 					'equal' => $builder->where($column, $query['value']),
-					'notEqual' => $builder->where($column, '!=', $query['value']),
+					'notEqual' => $builder->where(function ($q) use ($column, $query) {
+						return $q->whereNull($column)->orWhere($column, '<>', $query['value']);
+					}),
 					'include' => $builder->where($column, 'like', "%{$query['value']}%"),
-					'exclude' => $builder->where($column, 'not like', "%{$query['value']}%"),
-					'null' => $builder->whereNull($column),
-					'notNull' => $builder->whereNotNull($column),
+					'exclude' => $builder->where(function ($q) use ($column, $query) {
+						return $q->whereNull($column)->orWhere($column, 'not like', "%{$query['value']}%");
+					}),
+					'null' => $builder->where(function ($q) use ($column, $query) {
+						return $q->whereNull($column)->orWhere($column, '');
+					}),
+					'notNull' => $builder->where(function ($q) use ($column) {
+						return $q->whereNotNull($column)->where($column, '<>', '');
+					})
 				};
 				break;
 			case "select":
 				$builder = match ($query['condition']) {
 					'equal' => $builder->where($column, $query['value']),
-					'notEqual' => $builder->where($column, '!=', $query['value']),
+					'notEqual' => $builder->where(function ($q) use ($column, $query) {
+						return $q->whereNull($column)->orWhere($column, '<>', $query['value']);
+					}),
 					'include' => $builder->whereIn($column, $query['value']),
-					'exclude' => $builder->whereNotIn($column, $query['value']),
+					'exclude' => $builder->where(function ($q) use ($column, $query) {
+						return $q->whereNull($column)->orWhereNotIn($column, $query['value']);
+					}),
 				};
 				break;
 			case "number":
 				$builder = match ($query['condition']) {
 					'equal' => $builder->where($column, $query['value']),
-					'notEqual' => $builder->where($column, '!=', $query['value']),
+					'notEqual' => $builder->where(function ($q) use ($column, $query) {
+						return $q->whereNull($column)->orWhere($column, '<>', $query['value']);
+					}),
 					'lessThan' => $builder->where($column, '<', $query['value']),
 					'greaterThan' => $builder->where($column, '>', $query['value']),
 					'between' => $builder->whereBetween($column, $query['value']),
@@ -115,16 +129,20 @@ if (!function_exists('land_filterable')) {
 			case "textarea":
 				$builder = match ($query['condition']) {
 					'equal' => $builder->whereIn($column, $query['value']),
-					'exclude' => $builder->whereNotIn($column, $query['value'])
+					'exclude' => $builder->where(function ($q) use ($column, $query) {
+						return $q->whereNull($column)->orWhereNotIn($column, $query['value']);
+					}),
 				};
 				break;
 			case "cascade":
-				if($query['condition'] !== 'include'){
+				if ($query['condition'] !== 'include') {
 					$query['value'] = is_array($query['value']) ? end($query['value']) : $query['value'];
 				}
 				$builder = match ($query['condition']) {
 					'equal' => $builder->where($column, $query['value']),
-					'notEqual' => $builder->where($column, '!=', $query['value']),
+					'notEqual' => $builder->where(function ($q) use ($column, $query) {
+						return $q->whereNull($column)->orWhere($column, '<>', $query['value']);
+					}),
 					'include' => $builder->whereIn($column, $query['value']),
 				};
 				break;
@@ -139,7 +157,7 @@ if (!function_exists('land_filterable')) {
 
 if (!function_exists('land_sortable')) {
 	/**
-	 * 通用的查询排序器，用于配合 NewbieSearch 1.9.0 以上版本
+	 * 通用的查询过滤器，用于配合 NewbieSearch
 	 * @param string $column
 	 * @param Builder $builder
 	 * @param string $direction
@@ -150,4 +168,3 @@ if (!function_exists('land_sortable')) {
 		return $builder->orderBy($column, $direction);
 	}
 }
-
