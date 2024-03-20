@@ -117,7 +117,19 @@ if (!function_exists('land_filterable')) {
 				break;
 			case "date":
 
-				$query['value'] = is_array($query['value']) ? collect($query['value'])->map(fn($v) => land_predict_date_time($v, 'date'))->toArray() : land_predict_date_time($query['value'], 'date');
+				$query['value'] = is_array($query['value'])
+					? collect($query['value'])->map(function ($v, $index) {
+						if ($index === 0) {
+							return land_predict_date_time($v, 'date');
+						}
+						//第二个日期默认为 00:00:00，必须要 23:59:59
+						$date = land_predict_date_time($v, 'date');
+						if ($date) {
+							$date->endOfDay();
+						}
+						return $date;
+					})->toArray()
+					: land_predict_date_time($query['value'], 'date');
 
 				$builder = match ($query['condition']) {
 					'equal' => $builder->whereDate($column, $query['value']),
@@ -157,7 +169,7 @@ if (!function_exists('land_filterable')) {
 
 if (!function_exists('land_sortable')) {
 	/**
-	 * 通用的查询排序器，用于配合 NewbieSearch 1.9.0 以上版本
+	 * 通用的查询过滤器，用于配合 NewbieSearch
 	 * @param string $column
 	 * @param Builder $builder
 	 * @param string $direction
