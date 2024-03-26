@@ -1,10 +1,9 @@
 <template>
 	<a-layout>
-		<a-layout-sider v-model:collapsed="isCollapsed" collapsible
-						class="overflow-auto h-screen !fixed left-0 top-0 bottom-0" width="240">
+		<a-layout-sider v-model:collapsed="isCollapsed" collapsible class="overflow-auto h-screen !fixed left-0 top-0 bottom-0" width="240">
 			<div class="logo">
 				<a href="#" class="flex items-center justify-center !bg-[#002140]">
-					<img :src="isCollapsed ? miniLogoUrl : logoUrl"/>
+					<img :src="isCollapsed ? miniLogoUrl : logoUrl" />
 				</a>
 			</div>
 			<simplebar style="height: calc(100% - 60px)" :auto-hide="false">
@@ -37,8 +36,7 @@
 			</simplebar>
 		</a-layout-sider>
 
-		<a-layout class="bg-gray-100"
-				  :style="{ marginLeft: isCollapsed ? '80px' : '240px', transition: 'ease all 0.3s' }">
+		<a-layout class="bg-gray-100" :style="{ marginLeft: isCollapsed ? '80px' : '240px', transition: 'ease all 0.3s' }">
 			<a-layout-header class="!bg-white !p-0 !h-[64px]">
 				<div class="relative px-4 h-full flex items-center shadow">
 					<div class="basis-4"></div>
@@ -67,8 +65,6 @@
 													新建工单
 												</Link>
 											</a-menu-item> -->
-
-
 									</a-menu>
 								</template>
 							</a-dropdown>
@@ -86,7 +82,7 @@
 						<a-dropdown>
 							<div class="h-full px-3 flex items-center cursor-pointer hover:bg-gray-100">
 								<span class="h-6 w-6 leading-6">
-									<img class="h-full w-full rounded-full" :src="profile.avatar.url || DefaultAvatar"/>
+									<img class="h-full w-full rounded-full" :src="profile.avatar.url || DefaultAvatar" />
 								</span>
 								<span class="ml-2 text-lg">{{ profile.nickname || profile.name }}</span>
 							</div>
@@ -105,7 +101,7 @@
 											修改密码
 										</Link>
 									</a-menu-item>
-									<a-menu-divider/>
+									<a-menu-divider />
 									<a-menu-item key="logout">
 										<Link :href="route('page.logout')">
 											<LogoutOutlined></LogoutOutlined>
@@ -131,8 +127,7 @@
 						</a-breadcrumb-item>
 					</a-breadcrumb>
 				</div>
-				<div class="main-container bg-white p-5 rounded relative z-10"
-					 :style="{ margin: '16px 16px 60px', overflow: 'initial' }">
+				<div class="main-container bg-white p-5 rounded relative z-10" :style="{ margin: '16px 16px 60px', overflow: 'initial' }">
 					<slot></slot>
 				</div>
 			</a-layout-content>
@@ -141,8 +136,7 @@
 				:class="[isCollapsed ? 'left-[80px]' : 'left-[240px]']"
 			>
 				<p class="mb-1">职迅XXXX管理系统 ©版权所属</p>
-				<p class="mb-0">技术支持： <a href="https://jobsys.cn" target="_blank" class="text-gray-300 font-bold">职迅科技
-					JOBSYS.cn</a></p>
+				<p class="mb-0">技术支持： <a href="https://jobsys.cn" target="_blank" class="text-gray-300 font-bold">职迅科技 JOBSYS.cn</a></p>
 			</a-layout-footer>
 		</a-layout>
 	</a-layout>
@@ -150,15 +144,7 @@
 <script setup>
 import { Link, router } from "@inertiajs/vue3"
 import { computed, inject, ref } from "vue"
-import {
-	BellOutlined,
-	CompressOutlined,
-	ExpandOutlined,
-	LockOutlined,
-	LogoutOutlined,
-	PlusSquareOutlined,
-	UserOutlined
-} from "@ant-design/icons-vue"
+import { BellOutlined, CompressOutlined, ExpandOutlined, LockOutlined, LogoutOutlined, PlusSquareOutlined, UserOutlined } from "@ant-design/icons-vue"
 import simplebar from "simplebar-vue"
 import DefaultAvatar from "@public/images/default-avatar.png"
 import { useAppStore, useNotificationStore, useUserStore } from "@manager/stores"
