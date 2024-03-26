@@ -20,5 +20,5 @@ return [
     ######## 以下配置项为客户化配置项，需要在.env中配置 ########
 	//默认客户标识
 	'customer_identify' => env('CUSTOMER_IDENTIFY', 'default'),
-	'customer_name' => env('SCHOOL_NAME', 'default'),
+	'customer_name' => env('CUSTOMER_NAME', 'default'),
 ];
