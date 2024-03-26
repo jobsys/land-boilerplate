@@ -30,7 +30,12 @@ class AppServiceProvider extends ServiceProvider
 
 		//将Carbon的语言设置为中文
 		Carbon::setLocale('zh');
+
+		//PHP 时区
 		date_default_timezone_set(config('app.timezone'));
+
+		//PHP 超时
+		set_time_limit(300);
 
 		//设置数据库默认字符串长度，超过该长度 MySQL 无法创建索引
 		Schema::defaultStringLength(191);

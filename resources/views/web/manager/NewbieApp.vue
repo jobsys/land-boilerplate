@@ -1,12 +1,5 @@
 <template>
-	<ConfigProvider
-		:theme="{
-			token: {
-				colorPrimary: appConfig.primaryColor,
-			},
-		}"
-		:locale="zhCN"
-	>
+	<ConfigProvider :theme="theme" :locale="zhCN">
 		<NewbieProvider v-bind="provider">
 			<slot></slot>
 		</NewbieProvider>
@@ -18,12 +11,16 @@ import { ConfigProvider } from "ant-design-vue"
 import { NewbieProvider } from "jobsys-newbie"
 import zhCN from "ant-design-vue/es/locale/zh_CN"
 import { inject, reactive } from "vue"
-import appConfig from "./config"
+import { useAppStore } from "@manager/stores"
 
 const route = inject("route")
+const appStore = useAppStore()
+
+const { theme } = appStore.appSetting
 
 const provider = reactive({
 	table: {
+		pageSizeKey: "page_size",
 		afterFetched: (res) => ({
 			items: res.result.data,
 			totalSize: res.result.total,

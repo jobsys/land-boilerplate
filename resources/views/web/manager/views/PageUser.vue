@@ -300,9 +300,10 @@ const getForm = () => {
 			key: "departments",
 			title: "所属部门",
 			type: "tree-select",
-			width: 200,
+			width: 300,
 			options: props.departments,
 			defaultProps: {
+				treeDefaultExpandAll: false,
 				treeCheckable: true,
 				treeCheckStrictly: true,
 				showCheckedStrategy: TreeSelect.SHOW_ALL,

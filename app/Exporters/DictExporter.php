@@ -2,7 +2,6 @@
 
 namespace App\Exporters;
 
-use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -25,6 +24,7 @@ class  DictExporter implements FromQuery, WithHeadings, WithMapping
         return DictionaryItem::where('dictionary_id', $this->dict_id);
     }
 
+
     public function headings(): array
     {
         return [
@@ -38,7 +38,7 @@ class  DictExporter implements FromQuery, WithHeadings, WithMapping
     public function map($row): array
     {
         return [
-            $row->display_name,
+            $row->name,
             $row->value,
             $row->is_active ? '是' : '否',
             $row->sort_order,

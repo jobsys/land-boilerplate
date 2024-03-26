@@ -1,9 +1,10 @@
 <template>
 	<a-layout>
-		<a-layout-sider v-model:collapsed="isCollapsed" collapsible class="overflow-auto h-screen !fixed left-0 top-0 bottom-0" width="240">
+		<a-layout-sider v-model:collapsed="isCollapsed" collapsible
+						class="overflow-auto h-screen !fixed left-0 top-0 bottom-0" width="240">
 			<div class="logo">
 				<a href="#" class="flex items-center justify-center !bg-[#002140]">
-					<img :src="isCollapsed ? miniLogoUrl : logoUrl" />
+					<img :src="isCollapsed ? miniLogoUrl : logoUrl"/>
 				</a>
 			</div>
 			<simplebar style="height: calc(100% - 60px)" :auto-hide="false">
@@ -36,46 +37,56 @@
 			</simplebar>
 		</a-layout-sider>
 
-		<a-layout class="bg-gray-100" :style="{ marginLeft: isCollapsed ? '80px' : '240px', transition: 'ease all 0.3s' }">
+		<a-layout class="bg-gray-100"
+				  :style="{ marginLeft: isCollapsed ? '80px' : '240px', transition: 'ease all 0.3s' }">
 			<a-layout-header class="!bg-white !p-0 !h-[64px]">
 				<div class="relative px-4 h-full flex items-center shadow">
 					<div class="basis-4"></div>
 					<div class="grow shrink basis-0"></div>
 					<div class="flex items-center h-full">
-						<a-popover placement="bottom">
-							<span class="h-full leading-[64px] px-3 cursor-pointer hover:bg-gray-100">
+						<a-space-compact block>
+							<a-popover placement="bottomRight">
 								<a-badge :count="totalUnreadCount">
-									<BellOutlined style="font-size: 16px; padding: 4px; vertical-align: middle"></BellOutlined>
+									<a-button>
+										<BellOutlined></BellOutlined>
+									</a-button>
 								</a-badge>
-							</span>
-							<template #content>
-								<NotificationBox class="w-[600px]" :use-store="notificationStore"></NotificationBox>
-							</template>
-						</a-popover>
+								<template #content>
+									<NotificationBox class="w-[600px]" :use-store="notificationStore"></NotificationBox>
+								</template>
+							</a-popover>
+							<a-dropdown>
+								<a-button>
+									<PlusSquareOutlined></PlusSquareOutlined>
+								</a-button>
+								<template #overlay>
+									<a-menu>
+										<!--	<a-menu-item key="project">
+												<Link :href="route('page.manager.maintenance', { mint: 1 })">
+													<Component :is="Icons['SnippetsOutlined']"></Component>
+													新建工单
+												</Link>
+											</a-menu-item> -->
 
-						<a-dropdown>
-							<span class="h-full leading-[64px] px-3 cursor-pointer hover:bg-gray-100">
-								<PlusSquareOutlined style="font-size: 16px; padding: 4px; vertical-align: middle"></PlusSquareOutlined>
-							</span>
 
-							<template #overlay>
-								<a-menu>
-									<!--
-									<a-menu-item key="project" v-if="$auth('api.manager.project.edit')">
-										<Link :href="route('page.manager.project.edit')">
-											<NewbieIcon icon="iconfont-projector-line"></NewbieIcon>
-											新增项目
-										</Link>
-									</a-menu-item>
-									-->
-								</a-menu>
-							</template>
-						</a-dropdown>
+									</a-menu>
+								</template>
+							</a-dropdown>
+						</a-space-compact>
+
+						<a-space-compact block class="ml-4">
+							<a-tooltip :title="appStore.appRuntime.isCompactMode ? '正常模式' : '紧凑模式'">
+								<a-button @click="onToggleCompact">
+									<ExpandOutlined v-if="appStore.appRuntime.isCompactMode"></ExpandOutlined>
+									<CompressOutlined v-else></CompressOutlined>
+								</a-button>
+							</a-tooltip>
+						</a-space-compact>
 
 						<a-dropdown>
 							<div class="h-full px-3 flex items-center cursor-pointer hover:bg-gray-100">
 								<span class="h-6 w-6 leading-6">
-									<img class="h-full w-full rounded-full" :src="profile.avatar.url || DefaultAvatar" />
+									<img class="h-full w-full rounded-full" :src="profile.avatar.url || DefaultAvatar"/>
 								</span>
 								<span class="ml-2 text-lg">{{ profile.nickname || profile.name }}</span>
 							</div>
@@ -94,7 +105,7 @@
 											修改密码
 										</Link>
 									</a-menu-item>
-									<a-menu-divider />
+									<a-menu-divider/>
 									<a-menu-item key="logout">
 										<Link :href="route('page.logout')">
 											<LogoutOutlined></LogoutOutlined>
@@ -120,7 +131,8 @@
 						</a-breadcrumb-item>
 					</a-breadcrumb>
 				</div>
-				<div class="main-container bg-white p-5 rounded relative z-10" :style="{ margin: '16px 16px 60px', overflow: 'initial' }">
+				<div class="main-container bg-white p-5 rounded relative z-10"
+					 :style="{ margin: '16px 16px 60px', overflow: 'initial' }">
 					<slot></slot>
 				</div>
 			</a-layout-content>
@@ -129,25 +141,36 @@
 				:class="[isCollapsed ? 'left-[80px]' : 'left-[240px]']"
 			>
 				<p class="mb-1">职迅XXXX管理系统 ©版权所属</p>
-				<p class="mb-0">技术支持： <a href="https://jobsys.cn" target="_blank" class="text-gray-300 font-bold">职迅科技 JOBSYS.cn</a></p>
+				<p class="mb-0">技术支持： <a href="https://jobsys.cn" target="_blank" class="text-gray-300 font-bold">职迅科技
+					JOBSYS.cn</a></p>
 			</a-layout-footer>
 		</a-layout>
 	</a-layout>
 </template>
 <script setup>
-import { router, Link } from "@inertiajs/vue3"
+import { Link, router } from "@inertiajs/vue3"
 import { computed, inject, ref } from "vue"
-import { UserOutlined, LockOutlined, LogoutOutlined, PlusSquareOutlined, BellOutlined } from "@ant-design/icons-vue"
+import {
+	BellOutlined,
+	CompressOutlined,
+	ExpandOutlined,
+	LockOutlined,
+	LogoutOutlined,
+	PlusSquareOutlined,
+	UserOutlined
+} from "@ant-design/icons-vue"
 import simplebar from "simplebar-vue"
 import DefaultAvatar from "@public/images/default-avatar.png"
-import { useNotificationStore, useUserStore } from "@manager/stores"
+import { useAppStore, useNotificationStore, useUserStore } from "@manager/stores"
 import { find } from "lodash-es"
 import NotificationBox from "@modules/Starter/Resources/views/web/components/NotificationBox.vue"
 import Icons from "./icons"
 import { useLandCustomerAsset } from "@/js/hooks/land"
+import { theme } from "ant-design-vue"
 
 const route = inject("route")
 
+const appStore = useAppStore()
 const userStore = useUserStore()
 const notificationStore = useNotificationStore()
 notificationStore.setBriefUrl(route("api.manager.starter.notification.brief"))
@@ -204,6 +227,11 @@ const setupMenu = (currentPage) => {
 		return false
 	})
 	openKeys.value = openFolder ? [openFolder.key || openFolder.page] : []
+}
+
+const onToggleCompact = () => {
+	appStore.appSetting.theme.algorithm = appStore.appRuntime.isCompactMode ? theme.defaultAlgorithm : theme.compactAlgorithm
+	appStore.appRuntime.isCompactMode = !appStore.appRuntime.isCompactMode
 }
 
 router.on("navigate", (e) => {

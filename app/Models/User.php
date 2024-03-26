@@ -8,15 +8,16 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Modules\Permission\Traits\Authorisations;
+use Modules\Starter\Traits\Accessable;
 use Modules\Starter\Traits\Filterable;
 use Modules\Starter\Traits\MessageReceiver;
-use Modules\Starter\Traits\Accessable;
+use Modules\Starter\Traits\Paginatable;
 use Modules\Starter\Traits\Snsable;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-	use HasApiTokens, HasFactory, Notifiable, HasRoles, Authorisations, Filterable, MessageReceiver, Snsable, Accessable;
+	use HasApiTokens, HasFactory, Notifiable, HasRoles, Authorisations, Filterable, MessageReceiver, Paginatable, Snsable, Accessable;
 
 	protected $guarded = [];
 

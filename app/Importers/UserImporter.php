@@ -4,7 +4,7 @@ namespace App\Importers;
 
 
 use App\Services\UserService;
-use Modules\ImportExport\Importers\CollectionImporter;
+use Modules\Importexport\Importers\CollectionImporter;
 
 class UserImporter extends CollectionImporter
 {

@@ -1,5 +1,6 @@
 <?php
 
+use Franzose\ClosureTable\Models\Entity;
 use Illuminate\Config\Repository;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Model;
@@ -55,28 +56,50 @@ if (!function_exists('land_classify')) {
 	}
 }
 
-
 if (!function_exists('land_get_closure_tree')) {
+	/**
+	 * 根据顶层 item 获取所有的嵌套 children
+	 * @param $items
+	 * @param string $children_key
+	 * @return array
+	 */
 	function land_get_closure_tree($items, string $children_key = 'children'): array
 	{
 		$single = false;
 
-		if ($items instanceof Model) {
+		if (!($items instanceof Collection)) {
 			$items = collect($items);
 			$single = true;
 		}
 
-		$items = $items->map(function (\Franzose\ClosureTable\Models\Entity $item) use ($children_key) {
-			$children = $item->getDescendants()->toTree()->toArray();
-			if ($children && count($children)) {
-				$item->{$children_key} = $item->getDescendants()->toTree()->toArray();
-			}
+		$items = $items->map(function (Entity $item) use ($children_key) {
+			$children = $item->getDescendants()->toTree();
+			$item->{$children_key} = $children;
 			return $item;
-		})->toArray();
+		});
 
-		return $single ? $items->first() : $items;
+		function recursive_sort($items, $children_key)
+		{
+			return $items->map(function (Model $item) use ($children_key) {
+				if (!count($item->{$children_key})) {
+					unset($item->{$children_key});
+					return $item->toArray();
+				}
+				$children = recursive_sort($item->{$children_key}, $children_key)->sortByDesc('sort_order')->values()->toArray();
+				if ($item->isRelation($children_key)) {
+					$item->unsetRelation($children_key);
+				}
+				$item->{$children_key} = $children;
+				return $item->toArray();
+			});
+		}
+
+		$items = recursive_sort($items, $children_key)->sortByDesc('sort_order')->values()->toArray();
+
+		return $single ? $items[0] : $items;
 	}
 }
+
 
 if (!function_exists('land_tidy_tree')) {
 	/**

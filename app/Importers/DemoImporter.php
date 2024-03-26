@@ -3,7 +3,7 @@
 namespace App\Importers;
 
 
-use Modules\ImportExport\Importers\CollectionImporter;
+use Modules\Importexport\Importers\CollectionImporter;
 
 class DemoImporter extends CollectionImporter
 {

@@ -172,7 +172,7 @@ const useNotificationStore = defineStore("notification", () => {
 		isIntervalIsActive.value = true
 		useIntervalFn(async () => {
 			if (!isFetching.value) {
-				//await fetchBrief()
+				await fetchBrief()
 			}
 		}, 5000)
 	}
