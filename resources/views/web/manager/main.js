@@ -1,6 +1,7 @@
 import { createApp, h } from "vue"
 import { createInertiaApp } from "@inertiajs/vue3"
 import { ZiggyVue } from "@/js/plugins/ziggy"
+import "simplebar-vue/dist/simplebar.min.css"
 import "ant-design-vue/dist/reset.css"
 import "jobsys-newbie/dist/style.css"
 import "./styles/style.less"
