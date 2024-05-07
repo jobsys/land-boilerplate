@@ -17,54 +17,52 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-	use HasApiTokens, HasFactory, Notifiable, HasRoles, Authorisations, Filterable, MessageReceiver, Paginatable, Snsable, Accessable;
+    use Accessable, Authorisations, Filterable, HasApiTokens, HasFactory, HasRoles, MessageReceiver, Notifiable, Paginatable, Snsable;
 
-	protected $guarded = [];
+    protected $guarded = [];
 
-	/**
-	 * The attributes that should be hidden for serialization.
-	 *
-	 * @var array<int, string>
-	 */
-	protected $hidden = [
-		'password',
-		'password_salt',
-		'remember_token',
-	];
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<int, string>
+     */
+    protected $hidden = [
+        'password',
+        'password_salt',
+        'remember_token',
+    ];
 
+    public $appends = [
+        'model_type',
+    ];
 
-	public $appends = [
-		'model_type'
-	];
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'avatar' => 'array',
+        'email_verified_at' => 'datetime',
+        'sms_verified_at' => 'datetime',
+        'last_login_error_at' => 'datetime',
+        'last_login_at' => 'datetime',
+        'last_password_modify_at' => 'datetime',
+        'is_active' => 'boolean',
+    ];
 
-	/**
-	 * The attributes that should be cast.
-	 *
-	 * @var array<string, string>
-	 */
-	protected $casts = [
-		'avatar' => 'array',
-		'email_verified_at' => 'datetime',
-		'sms_verified_at' => 'datetime',
-		'last_login_error_at' => 'datetime',
-		'last_login_at' => 'datetime',
-		'last_password_modify_at' => 'datetime',
-		'is_active' => 'boolean',
-	];
+    public function departments(): BelongsToMany
+    {
+        return $this->belongsToMany(Department::class);
+    }
 
-	public function departments(): BelongsToMany
-	{
-		return $this->belongsToMany(Department::class);
-	}
+    public function isSuperAdmin(): bool
+    {
+        return session('user_role') === config('conf.super_role', 'super-admin');
+    }
 
-	public function isSuperAdmin(): bool
-	{
-		return session('user_role') === config('conf.super_role', 'super-admin');
-	}
-
-
-	public function getModelTypeAttribute(): string
-	{
-		return 'user';
-	}
+    public function getModelTypeAttribute(): string
+    {
+        return 'user';
+    }
 }

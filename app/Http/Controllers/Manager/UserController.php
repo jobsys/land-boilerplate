@@ -15,10 +15,10 @@ use Modules\Starter\Emnus\State;
 
 class UserController extends BaseManagerController
 {
-	public function pageUser()
-	{
-		$departments = land_get_closure_tree(Department::where('parent_id', null)->get(['id', 'name']));
-		$roles = Role::orderBy('sort_order', 'DESC')->where('is_active', true)->get();
+    public function pageUser()
+    {
+        $departments = Department::orderByDesc('sort_order')->get(['id', 'name'])->toTree();
+        $roles = Role::orderByDesc('sort_order')->where('is_active', true)->get();
 
 		return Inertia::render('PageUser', compact('departments', 'roles'));
 	}

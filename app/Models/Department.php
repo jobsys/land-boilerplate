@@ -3,29 +3,36 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Kalnoy\Nestedset\NodeTrait;
 use Modules\Permission\Traits\Authorisations;
-use Modules\Starter\Entities\BaseClosureModel;
+use Modules\Starter\Entities\BaseModel;
 
-class Department extends BaseClosureModel
+class Department extends BaseModel
 {
-	use Authorisations;
+    use Authorisations, NodeTrait;
 
-	protected $casts = [
-		'is_active' => 'boolean'
-	];
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
 
-	public function users(): BelongsToMany
-	{
-		return $this->belongsToMany(User::class);
-	}
+    protected $hidden = [
+        '_lft',
+        '_rgt',
+        'updated_at',
+        'created_at',
+    ];
 
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class);
+    }
 
-	public $appends = [
-		'model_type'
-	];
+    public $appends = [
+        'model_type',
+    ];
 
-	public function getModelTypeAttribute(): string
-	{
-		return 'department';
-	}
+    public function getModelTypeAttribute(): string
+    {
+        return 'department';
+    }
 }
