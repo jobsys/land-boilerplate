@@ -25,6 +25,9 @@ Route::name('page.manager.')->prefix('manager')->group(function () {
 });
 
 
+
+Route::get('/', fn() => response('Hello'));
+
 Route::get('local/temp', function () {
 	if (!request()->hasValidSignature()) {
 		abort(401);

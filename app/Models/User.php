@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Modules\Permission\Traits\Authorisations;
+use Modules\Permission\Traits\HasDataScopes;
 use Modules\Starter\Traits\Accessable;
 use Modules\Starter\Traits\Filterable;
 use Modules\Starter\Traits\MessageReceiver;
@@ -17,7 +18,7 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use Accessable, Authorisations, Filterable, HasApiTokens, HasFactory, HasRoles, MessageReceiver, Notifiable, Paginatable, Snsable;
+    use HasDataScopes, Accessable, Authorisations, Filterable, HasApiTokens, HasFactory, HasRoles, MessageReceiver, Notifiable, Paginatable, Snsable;
 
     protected $guarded = [];
 
@@ -58,7 +59,7 @@ class User extends Authenticatable
 
     public function isSuperAdmin(): bool
     {
-        return session('user_role') === config('conf.super_role', 'super-admin');
+        return $this->hasRole(config('conf.super_role', 'super-admin'));
     }
 
     public function getModelTypeAttribute(): string

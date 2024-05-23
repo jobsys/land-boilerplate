@@ -10,44 +10,45 @@ use Modules\Starter\Http\Controllers\BaseController;
 
 class BaseManagerController extends BaseController
 {
-    protected User $login_user;
-    protected int $login_user_id;
+	protected User $login_user;
 
-    public function __construct(PermissionService $service)
-    {
+	protected int $login_user_id;
 
-        $this->middleware(function ($request, $next) use ($service) {
-            if (!auth()->check()) {
-                if ($request->ajax() || $request->wantsJson()) {
-                    return response('', 401);
-                } else {
-                    return response()->redirectTo(route('page.login'));
-                }
-            }
+	public function __construct(PermissionService $service)
+	{
 
-            $this->login_user = auth()->user();
-            $this->login_user_id = $this->login_user->id;
+		$this->middleware(function ($request, $next) use ($service) {
+			if (!auth()->check()) {
+				if ($request->ajax() || $request->wantsJson()) {
+					return response('', 401);
+				} else {
+					return response()->redirectTo(route('page.login'));
+				}
+			}
 
-            $route_name = Route::current()->getName();
+			$this->login_user = auth()->user();
+			$this->login_user_id = $this->login_user->id;
 
-            $permissions = $service->getAllPermissions();
+			$route_name = Route::current()->getName();
 
-            if ($permissions->contains('name', $route_name) && !$this->login_user->can($route_name)) {
-                /*if($request->header('X-Inertia')){
-                    Inertia::setRootView('manager');
-                    return Inertia::render('PageError', ['status' => 403]);
-                }*/
-                return response('', 403);
-            }
 
-            return $next($request);
-        });
+			if (!$service->can($route_name)) {
+				/*if($request->header('X-Inertia')){
+					Inertia::setRootView('manager');
+					return Inertia::render('PageError', ['status' => 403]);
+				}*/
+				return response('', 403);
+			}
 
-        $this->middleware('dataScope.setup:' . session('user_role'));
+			return $next($request);
+		});
 
-        $this->middleware(function ($request, $next) {
-            Inertia::setRootView('manager');
-            return $next($request);
-        });
-    }
+		$this->middleware('dataScope.setup');
+
+		$this->middleware(function ($request, $next) {
+			Inertia::setRootView('manager');
+
+			return $next($request);
+		});
+	}
 }

@@ -29,6 +29,7 @@ module.exports = {
 		"vue/no-mutating-props": "off",
 		"vue/no-reserved-component-names": "off",
 		"vue/no-v-html": "off",
+		"vue/no-v-text-v-html-on-component": "off",
 		"no-param-reassign": "off",
 		"no-console": "off",
 		"no-restricted-globals": "off",

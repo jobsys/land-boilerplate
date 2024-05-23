@@ -23,7 +23,7 @@ class SetupSeeder extends Seeder
             $system_admin = Role::create(['name' => 'system-admin', 'display_name' => '系统管理员', 'guard_name' => 'web', 'is_active' => 1]);
         }
 
-        if (!$system_admin->data_scopes->count()) {
+        if (!$system_admin->dataScopes->count()) {
             $system_admin->initDataScope();
         }
 

@@ -13,7 +13,9 @@ return [
     //登录字段
     'login_field' => ['name'],
 
-	######## 业务配置 ########
+	//####### 业务配置 ########
+	//系统管理部门
+	'system_department_id' => 1,
 	//是否启用微信
 	'wechat_channel' => env('WECHAT_CHANNEL'),
 

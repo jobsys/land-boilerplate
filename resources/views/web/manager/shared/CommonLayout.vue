@@ -82,7 +82,7 @@
 						<a-dropdown>
 							<div class="h-full px-3 flex items-center cursor-pointer hover:bg-gray-100">
 								<span class="h-6 w-6 leading-6">
-									<img class="h-full w-full rounded-full" :src="profile.avatar.url || DefaultAvatar" />
+									<img class="h-full w-full rounded-full" :src="profile?.avatar?.url || DefaultAvatar" />
 								</span>
 								<span class="ml-2 text-lg">{{ profile.nickname || profile.name }}</span>
 							</div>
@@ -190,7 +190,7 @@ const setupMenu = (currentPage) => {
 
 		if (item.children && item.children.length) {
 			return find(item.children, (child) => {
-				if (child.page && (child.page === currentRoute || currentRoute.startsWith(`${child.page}.`))) {
+				if (child.page && (child.page === currentRoute || currentRoute?.startsWith(`${child.page}.`))) {
 					selectedKeys.value = [child.page || child.key]
 					breads.value.push({
 						label: item.displayName,

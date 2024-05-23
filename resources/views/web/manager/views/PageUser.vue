@@ -40,7 +40,7 @@
 				<NewbieTable ref="list" title="账号列表" :columns="columns()" :url="route('api.manager.user.items', state.searchExtra)" row-selection>
 					<template #functional>
 						<NewbieButton v-if="$auth('api.manager.user.edit')" type="primary" :icon="h(PlusOutlined)" @click="onEdit(false)"
-						>新增账号
+							>新增账号
 						</NewbieButton>
 
 						<NewbieButton
@@ -48,7 +48,7 @@
 							:icon="h(ImportOutlined)"
 							class="ml-2"
 							@click="() => userImportRef.openImporter()"
-						>导入账号
+							>导入账号
 						</NewbieButton>
 
 						<NewbieButton
@@ -56,7 +56,7 @@
 							:icon="h(ApartmentOutlined)"
 							@click="onBeforeEditDepartment"
 							class="ml-2"
-						>分配部门
+							>分配部门
 						</NewbieButton>
 					</template>
 				</NewbieTable>
@@ -118,17 +118,20 @@
 			:progress-url="route('api.manager.import-export.progress')"
 			:tips="['模板中红色字段为必填项']"
 		/>
+
+		<PermissionAuthorization ref="permissionAuthorizationRef" mode="user" :info="state.currentItem"></PermissionAuthorization>
 	</div>
 </template>
 
 <script setup>
-import { ApartmentOutlined, DeleteOutlined, EditOutlined, ImportOutlined, MoreOutlined, PlusOutlined } from "@ant-design/icons-vue"
+import { ApartmentOutlined, AuditOutlined, DeleteOutlined, EditOutlined, ImportOutlined, MoreOutlined, PlusOutlined } from "@ant-design/icons-vue"
 import { NewbiePassword, useTableActions } from "jobsys-newbie"
 import { useDateFormat, useFetch, useModalConfirm, useProcessStatusSuccess, useSm3 } from "jobsys-newbie/hooks"
 import { h, inject, nextTick, reactive, ref, watch } from "vue"
 import { Button, message, Tag, TreeSelect } from "ant-design-vue"
 import { cloneDeep } from "lodash-es"
 import NewbieImporter from "@modules/Importexport/Resources/views/web/components/NewbieImporter.vue"
+import PermissionAuthorization from "@modules/Permission/Resources/views/web/components/PermissionAuthorization.vue"
 
 const { SHOW_ALL } = TreeSelect
 
@@ -146,9 +149,10 @@ const props = defineProps({
 const auth = inject("auth")
 const route = inject("route")
 
-const list = ref(null)
-const edit = ref(null)
-const userImportRef = ref(null)
+const list = ref()
+const edit = ref()
+const userImportRef = ref()
+const permissionAuthorizationRef = ref()
 
 const departmentOptions = cloneDeep(props.departments)
 departmentOptions.unshift({ id: "-1", name: "未分配" })
@@ -166,6 +170,7 @@ const state = reactive({
 	showUserEditor: false,
 	url: "",
 	showPassword: false,
+	currentItem: {},
 
 	showDepartmentEditEditor: false,
 	editDepartmentFetcher: { loading: false },
@@ -252,7 +257,7 @@ watch(
 )
 
 const onBeforeEditDepartment = () => {
-	const selectedRows = list.value.getSelection()
+	const selectedRows = list.value?.getSelection()
 
 	if (!selectedRows.length) {
 		message.error("请先勾选数据")
@@ -275,7 +280,7 @@ const onSaveDepartment = async () => {
 	useProcessStatusSuccess(res, () => {
 		message.success("保存成功")
 		state.showDepartmentEditEditor = false
-		list.value.doFetch()
+		list.value?.doFetch()
 	})
 }
 
@@ -337,25 +342,25 @@ const getForm = () => {
 					return h("div", {}, [
 						!state.showPassword
 							? h(
-								Button,
-								{
-									type: "primary",
-									onClick() {
-										state.showPassword = true
+									Button,
+									{
+										type: "primary",
+										onClick() {
+											state.showPassword = true
+										},
 									},
-								},
-								{ default: () => "修改密码" },
-							)
+									{ default: () => "修改密码" },
+							  )
 							: null,
 						state.showPassword
 							? h(NewbiePassword, {
-								modelValue: submitForm.password,
-								placeholder: "请输入密码",
-								style: { width: "200px" },
-								onChange(e) {
-									submitForm.password = e.target.value
-								},
-							})
+									modelValue: submitForm.password,
+									placeholder: "请输入密码",
+									style: { width: "200px" },
+									onChange(e) {
+										submitForm.password = e.target.value
+									},
+							  })
 							: null,
 					])
 				}
@@ -395,7 +400,7 @@ const onEdit = (id) => {
 
 const closeEditor = (isRefresh) => {
 	if (isRefresh) {
-		list.value.doFetch()
+		list.value?.doFetch()
 	}
 	state.showUserEditor = false
 }
@@ -536,7 +541,7 @@ const columns = () => {
 		},
 		{
 			title: "操作",
-			width: 160,
+			width: 260,
 			key: "operation",
 			align: "center",
 			fixed: "right",
@@ -555,6 +560,20 @@ const columns = () => {
 						},
 					})
 				}
+
+				actions.push({
+					name: "权限管理",
+					props: {
+						icon: h(AuditOutlined),
+						size: "small",
+					},
+					action() {
+						state.currentItem = record
+						nextTick(() => {
+							permissionAuthorizationRef.value?.open()
+						})
+					},
+				})
 
 				if (auth("api.manager.user.delete")) {
 					actions.push({

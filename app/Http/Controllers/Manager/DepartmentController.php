@@ -61,8 +61,9 @@ class DepartmentController extends BaseManagerController
 
     public function items(Request $request)
     {
-        $items = Department::authorise()->orderBy('sort_order')->get()->toTree()->toArray();
-        $items = land_tidy_tree($items, fn ($item) => $item);
+		$items = Department::authorise()->whereNull('parent_id')->orderBy('sort_order', 'DESC')->get();
+
+		$items = land_get_closure_tree($items);
 
         log_access('查看部门列表');
 
