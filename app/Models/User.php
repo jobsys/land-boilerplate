@@ -18,52 +18,57 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasDataScopes, Accessable, Authorisations, Filterable, HasApiTokens, HasFactory, HasRoles, MessageReceiver, Notifiable, Paginatable, Snsable;
+	use HasDataScopes, Accessable, Authorisations, Filterable, HasApiTokens, HasFactory, HasRoles, MessageReceiver, Notifiable, Paginatable, Snsable;
 
-    protected $guarded = [];
+	protected $guarded = [];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
-    protected $hidden = [
-        'password',
-        'password_salt',
-        'remember_token',
-    ];
+	/**
+	 * The attributes that should be hidden for serialization.
+	 *
+	 * @var array<int, string>
+	 */
+	protected $hidden = [
+		'password',
+		'password_salt',
+		'remember_token',
+	];
 
-    public $appends = [
-        'model_type',
-    ];
+	public $appends = [
+		'model_type',
+	];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'avatar' => 'array',
-        'email_verified_at' => 'datetime',
-        'sms_verified_at' => 'datetime',
-        'last_login_error_at' => 'datetime',
-        'last_login_at' => 'datetime',
-        'last_password_modify_at' => 'datetime',
-        'is_active' => 'boolean',
-    ];
+	/**
+	 * The attributes that should be cast.
+	 *
+	 * @var array<string, string>
+	 */
+	protected $casts = [
+		'avatar' => 'array',
+		'email_verified_at' => 'datetime',
+		'sms_verified_at' => 'datetime',
+		'last_login_error_at' => 'datetime',
+		'last_login_at' => 'datetime',
+		'last_password_modify_at' => 'datetime',
+		'is_active' => 'boolean',
+	];
 
-    public function departments(): BelongsToMany
-    {
-        return $this->belongsToMany(Department::class);
-    }
 
-    public function isSuperAdmin(): bool
-    {
-        return $this->hasRole(config('conf.super_role', 'super-admin'));
-    }
+	protected array $accessors = [
+		'avatar' => 'file'
+	];
 
-    public function getModelTypeAttribute(): string
-    {
-        return 'user';
-    }
+	public function departments(): BelongsToMany
+	{
+		return $this->belongsToMany(Department::class);
+	}
+
+	public function isSuperAdmin(): bool
+	{
+		return $this->hasRole(config('conf.super_role', 'super-admin'));
+	}
+
+	public function getModelTypeAttribute(): string
+	{
+		return 'user';
+	}
 }

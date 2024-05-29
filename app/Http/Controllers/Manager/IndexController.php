@@ -27,7 +27,7 @@ class IndexController extends BaseManagerController
 
     public function pageCenterProfile()
     {
-        $user = $this->login_user;
+        $user = User::find($this->login_user_id);
         return Inertia::render('PageCenterProfile', [
                 'user' => [
                     'name' => $user->name,

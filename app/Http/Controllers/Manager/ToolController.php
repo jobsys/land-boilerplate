@@ -6,6 +6,8 @@ use App\Http\Controllers\BaseManagerController;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Intervention\Image\Facades\Image;
 use Pion\Laravel\ChunkUpload\Exceptions\UploadFailedException;
 use Pion\Laravel\ChunkUpload\Handler\AbstractHandler;
 use Pion\Laravel\ChunkUpload\Handler\HandlerFactory;
@@ -27,11 +29,13 @@ class ToolController extends BaseManagerController
 		// check if the upload has finished (in chunk mode it will send smaller files)
 		if ($save->isFinished()) {
 			$file = $save->getFile();
-			$file_name = $this->createFilename($file);
+			$file_names = $this->createFilename($file);
 			$name = $file->getClientOriginalName();
 			$mime = $file->getMimeType();
 			$date_folder = date('Ymd');
 
+
+			$with_thumb = Str::startsWith($mime, 'image/');
 			$type = $request->input('type') === 'private' ? 'private' : 'public';
 			$is_private = $type === 'private';
 
@@ -42,15 +46,32 @@ class ToolController extends BaseManagerController
 			}
 			// save the file and return any response you need
 			if ($is_private) {
-				$result = Storage::disk('local')->putFileAs($file_path, $file, $file_name);
+				$result = Storage::disk('local')->putFileAs($file_path, $file, $file_names['file']);
 			} else {
-				$result = Storage::putFileAs($file_path, $file, $file_name);
+				$result = Storage::putFileAs($file_path, $file, $file_names['file']);
+			}
+
+			if ($with_thumb) {
+				$img = Image::make($file->getRealPath());
+				//如果没有传入缩略图大小，则默认为120
+				$img->resize($request->input('thumb', 120), null, function ($constraint) {
+					$constraint->aspectRatio();
+				});
+
+				if ($is_private) {
+					$img->save(storage_path('app/' . $file_path . '/' . $file_names['thumb']));
+					$thumb_url = Storage::temporaryUrl($file_path . '/' . $file_names['thumb'], now()->addMinutes(120));
+				} else {
+					$img->save(storage_path('app/public/' . $file_path . '/' . $file_names['thumb']));
+					$thumb_url = Storage::disk('public')->url($file_path . '/' . $file_names['thumb']);
+				}
 			}
 
 			if ($result) {
 				return $this->json([
 					'path' => $result,
 					'name' => $name,
+					"thumbUrl" => $with_thumb ? $thumb_url : null,
 					'url' => $is_private
 						? Storage::disk('local')->temporaryUrl($result, now()->addMinutes(120))
 						: Storage::url($result),
@@ -62,7 +83,6 @@ class ToolController extends BaseManagerController
 		}
 
 		// we are in chunk mode, lets send the current progress
-		/** @var AbstractHandler $handler */
 		$handler = $save->handler();
 
 		return response()->json([
@@ -70,15 +90,18 @@ class ToolController extends BaseManagerController
 		]);
 	}
 
-	protected function createFilename(UploadedFile $file)
+	protected function createFilename(UploadedFile $file): array
 	{
 		$extension = $file->getClientOriginalExtension();
-		$filename = str_replace('.'.$extension, '', $file->getClientOriginalName()); // Filename without extension
+		$filename = str_replace('.' . $extension, '', $file->getClientOriginalName()); // Filename without extension
 		$filename = str_replace('-', '_', $filename); // Replace all dashes with underscores
 
 		// Add timestamp hash to name of the file
-		$filename .= '_'.md5(time()).'.'.$extension;
+		$name = md5($filename) . '_' . md5(time());
 
-		return $filename;
+		return [
+			'thumb' => $name . "_thumb." . $extension,
+			'file' => $name . "." . $extension,
+		];
 	}
 }

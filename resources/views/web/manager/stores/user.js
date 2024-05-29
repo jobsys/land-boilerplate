@@ -9,8 +9,8 @@ const useUserStore = defineStore("user", () => {
 	const isSuperAdmin = ref(false)
 
 	const init = (data) => {
-		profile.value = data.profile
-		permissions.value = data.permissions
+		profile.value = data.profile || {}
+		permissions.value = data.permissions || []
 		menus.value = data.menus
 		departments.value = data.departments
 		isSuperAdmin.value = data.is_super_admin

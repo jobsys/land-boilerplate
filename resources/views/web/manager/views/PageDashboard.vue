@@ -3,7 +3,7 @@
 		<a-page-header class="bg-white rounded mb-4" title="工作台">
 			<div class="flex items-center">
 				<div class="w-16 h-16 mr-10">
-					<img class="h-full w-full rounded-full" :src="profile.avatar.url || DefaultAvatar" />
+					<img class="h-full w-full rounded-full" :src="profile.avatar?.url || DefaultAvatar" />
 				</div>
 				<div class="flex-1">
 					<div class="text-2xl font-bold mb-3">{{ profile.name }}</div>
