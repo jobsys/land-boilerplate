@@ -562,7 +562,7 @@ const columns = () => {
 				}
 
 				actions.push({
-					name: "权限管理",
+					name: "独立权限",
 					props: {
 						icon: h(AuditOutlined),
 						size: "small",

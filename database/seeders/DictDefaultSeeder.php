@@ -23,7 +23,7 @@ class DictDefaultSeeder extends Seeder
 	{
 		Model::unguard();
 
-		if (!Dictionary::where('slug', config('conf.maintenance_area_slug'))->exists()) {
+		/*if (!Dictionary::where('slug', config('conf.maintenance_area_slug'))->exists()) {
 			Dictionary::create(['id' => 1, 'name' => '维修区域', 'slug' => config('conf.maintenance_area_slug')]);
 			$maintenance_areas = [
 				[
@@ -38,6 +38,6 @@ class DictDefaultSeeder extends Seeder
 			foreach ($maintenance_areas as $maintenance_area) {
 				DictionaryItem::create($maintenance_area);
 			}
-		}
+		}*/
 	}
 }
