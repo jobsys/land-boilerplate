@@ -98,7 +98,13 @@ if (!function_exists('land_filterable')) {
 					'notEqual' => $builder->where(function ($q) use ($column, $query) {
 						return $q->whereNull($column)->orWhere($column, '<>', $query['value']);
 					}),
-					'include' => $builder->whereIn($column, $query['value']),
+					'include' => $builder->where(function ($q) use ($column, $query) {
+						//如果只有一个值，就使用like, 用于支持数组类型的数据
+						if (count($query['value']) === 1) {
+							return $q->whereIn($column, $query['value'])->orWhere($column, 'like', '%' . $query['value'][0] . '%');
+						}
+						return $q->whereIn($column, $query['value']);
+					}),
 					'exclude' => $builder->where(function ($q) use ($column, $query) {
 						return $q->whereNull($column)->orWhereNotIn($column, $query['value']);
 					}),
