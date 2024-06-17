@@ -1,6 +1,6 @@
 <template>
 	<NewbieTable
-		ref="list"
+		ref="tableRef"
 		:url="route('api.manager.department.items', { classify: 1 })"
 		:columns="columns()"
 		:pagination="false"
@@ -35,7 +35,7 @@ import { message } from "ant-design-vue"
 import { h, inject, reactive, ref } from "vue"
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons-vue"
 
-const list = ref(null)
+const tableRef = ref(null)
 const edit = ref(null)
 
 const route = inject("route")
@@ -119,7 +119,7 @@ const onEdit = (item) => {
 
 const closeEditor = (isRefresh) => {
 	if (isRefresh) {
-		list.value.doFetch()
+		tableRef.value.doFetch()
 	}
 	state.showDepartmentEditor = false
 }
@@ -133,7 +133,7 @@ const onDelete = (item) => {
 				modal.destroy()
 				useProcessStatusSuccess(res, () => {
 					message.success("删除成功")
-					list.value.doFetch()
+					tableRef.value.doFetch()
 				})
 			} catch (e) {
 				modal.destroy(e)

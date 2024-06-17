@@ -45,7 +45,8 @@
         "files": [
             "app/Helpers/util.php",
             "app/Helpers/sql.php",
-            "app/Helpers/file.php"
+            "app/Helpers/file.php",
+            "app/Helpers/service.php"
         ]
     },
     "autoload-dev": {

@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Inertia\Inertia;
 use Intervention\Image\Facades\Image;
 use Pion\Laravel\ChunkUpload\Exceptions\UploadFailedException;
 use Pion\Laravel\ChunkUpload\Handler\AbstractHandler;
@@ -15,6 +16,12 @@ use Pion\Laravel\ChunkUpload\Receiver\FileReceiver;
 
 class ToolController extends BaseManagerController
 {
+
+	public function pageDataTransfer()
+	{
+		return Inertia::render('PageDataTransfer');
+	}
+
 	/**
 	 * @throws UploadFailedException
 	 */
@@ -46,7 +53,7 @@ class ToolController extends BaseManagerController
 			}
 			// save the file and return any response you need
 			if ($is_private) {
-				$result = Storage::disk('local')->putFileAs($file_path, $file, $file_names['file']);
+				$result = Storage::disk('private')->putFileAs($file_path, $file, $file_names['file']);
 			} else {
 				$result = Storage::putFileAs($file_path, $file, $file_names['file']);
 			}
@@ -73,7 +80,7 @@ class ToolController extends BaseManagerController
 					'name' => $name,
 					"thumbUrl" => $with_thumb ? $thumb_url : null,
 					'url' => $is_private
-						? Storage::disk('local')->temporaryUrl($result, now()->addMinutes(120))
+						? Storage::disk('private')->temporaryUrl($result, now()->addMinutes(120))
 						: Storage::url($result),
 					'done' => 100,
 				]);

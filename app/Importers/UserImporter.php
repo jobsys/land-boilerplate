@@ -7,7 +7,7 @@ use Modules\Importexport\Importers\CollectionImporter;
 
 class UserImporter extends CollectionImporter
 {
-    public function store(array $row, array $extra): void
+    public function store(array $row, array $extra): array
     {
 
         $userService = new UserService();
@@ -30,5 +30,7 @@ class UserImporter extends CollectionImporter
         }
 
         [$user, $error] = $userService->editUser($row, $role_ids, $department_ids);
+		
+		return [!$error, $error ?? null];
     }
 }
