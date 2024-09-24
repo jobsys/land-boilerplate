@@ -24,9 +24,10 @@ const useSystemStore = defineStore("system", () => {
 
 	fetchSystemSettings()
 
+	//整个系统经常使用到的字典项可以先拿出来放在 Store 中
 	//fetchDictionaries(["level_type"])
 
-	return { lang, dictionaries }
+	return { lang, dictionaries, fetchDictionaries }
 })
 
 export default useSystemStore

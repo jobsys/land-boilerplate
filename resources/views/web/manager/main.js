@@ -64,7 +64,8 @@ createInertiaApp({
 	setup({ el, App, props, plugin }) {
 		const app = createApp(h(NewbieApp, {}, () => [h(App, props)]))
 
-		app.use(Newbie).use(plugin).use(http).use(pinia).use(hiPrintPlugin, "$pluginName")
+		app.use(Newbie).use(plugin).use(http).use(pinia)
+		//.use(hiPrintPlugin, "$pluginName")
 
 		// 先初始化用户信息再挂载App
 		const userStore = useUserStore()

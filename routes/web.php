@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Storage;
 Route::name('page.manager.')->prefix('manager')->group(function () {
 	Route::get('/', [\App\Http\Controllers\Manager\IndexController::class, 'pageDashboard'])->name('dashboard');
 	Route::get('/tool/data-transfer', [\App\Http\Controllers\Manager\ToolController::class, 'pageDataTransfer'])->name('tool.data-transfer');
-
+	Route::get('/todo', [\App\Http\Controllers\Manager\IndexController::class, 'pageTodo'])->name('todo');
 	Route::get('/center/profile', [\App\Http\Controllers\Manager\IndexController::class, 'pageCenterProfile'])->name('center.profile');
 	Route::get('/center/password', [\App\Http\Controllers\Manager\IndexController::class, 'pageCenterPassword'])->name('center.password');
 	Route::get('/user', [\App\Http\Controllers\Manager\UserController::class, 'pageUser'])->name('user');
