@@ -1,28 +1,45 @@
 <?php
+
+use Carbon\Carbon;
+use PhpOffice\PhpSpreadsheet\Shared\Date;
+
 if (!function_exists('land_csv_to_string')) {
-    /**
-     * 在CSV中将数字转换成字符输出
-     * @param $value
-     * @return string
-     */
-    function land_csv_to_string($value): string
-    {
-        return '="' . $value . '"';
-    }
-
-
+	/**
+	 * 在CSV中将数字转换成字符输出
+	 * @param $value
+	 * @return string
+	 */
+	function land_csv_to_string($value): string
+	{
+		return '="' . $value . '"';
+	}
 }
 
 
 if (!function_exists('land_csv_cell_break')) {
-    /**
-     * CSV单元格换行符
-     * @return string
-     */
-    function land_csv_cell_break(): string
-    {
-        return "\n";
-    }
+	/**
+	 * CSV单元格换行符
+	 * @return string
+	 */
+	function land_csv_cell_break(): string
+	{
+		return "\n";
+	}
+}
+
+if (!function_exists('land_excel_date')) {
+	/**
+	 * Excel 日期转换
+	 * @param $value
+	 * @return Carbon|null
+	 */
+	function land_excel_date($value): ?Carbon
+	{
+		if (!$value) {
+			return null;
+		}
+		return Carbon::instance(Date::excelToDateTimeObject($value));
+	}
 }
 
 

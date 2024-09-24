@@ -4,6 +4,7 @@ import { useFetch, useProcessStatusSuccess } from "jobsys-newbie/hooks"
 
 const useSystemStore = defineStore("system", () => {
 	const lang = ref({})
+	const dictionaries = ref({})
 
 	const fetchSystemSettings = async () => {
 		const res = await useFetch().get("api/manager/starter/system/settings")
@@ -12,9 +13,20 @@ const useSystemStore = defineStore("system", () => {
 		})
 	}
 
+	const fetchDictionaries = async (keys) => {
+		keys = keys.filter((key) => !dictionaries.value[key])
+
+		const res = await useFetch().get("api/v1/open/app/dictionary", { params: { keys } })
+		useProcessStatusSuccess(res, () => {
+			dictionaries.value = { ...dictionaries.value, ...res.result }
+		})
+	}
+
 	fetchSystemSettings()
 
-	return { lang }
+	//fetchDictionaries(["level_type"])
+
+	return { lang, dictionaries }
 })
 
 export default useSystemStore

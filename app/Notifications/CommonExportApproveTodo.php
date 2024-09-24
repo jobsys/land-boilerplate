@@ -10,7 +10,7 @@ use Modules\Approval\Entities\ApprovalTask;
 use Modules\Importexport\Entities\TransferRecord;
 
 /***
- * 通用导出审批待办
+ * 通用导出审核待办
  */
 class CommonExportApproveTodo extends Notification implements shouldQueue
 {
@@ -35,8 +35,8 @@ class CommonExportApproveTodo extends Notification implements shouldQueue
 	{
 		return [
 			'url' => route('page.manager.tool.data-transfer'),
-			'title' => "导出待审批",
-			'message' => "待审批项目： {$this->record->task_name}；申请人：{$this->record->creator?->name}"
+			'title' => "导出待审核",
+			'message' => "待审核项目： {$this->record->task_name}；申请人：{$this->record->creator?->name}"
 		];
 	}
 }

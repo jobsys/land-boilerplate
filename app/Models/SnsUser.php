@@ -3,19 +3,19 @@
 namespace App\Models;
 
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Modules\Starter\Entities\BaseModel;
 
-class SnsUser extends BaseModel
+class SnsUser extends Model
 {
 
-    protected $casts = [
-        'bound_at' => 'datetime'
-    ];
+	protected $casts = [
+		'bound_at' => 'datetime'
+	];
 
 
-    public function snsable(): MorphTo
-    {
-        return $this->morphTo();
-    }
+	public function snsable(): MorphTo
+	{
+		return $this->morphTo();
+	}
 }

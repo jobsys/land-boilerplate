@@ -4,9 +4,10 @@ namespace App\Listeners;
 
 use App\Events\CommonExportApproved;
 use App\Notifications\CommonExportApprovedNotification;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Modules\Approval\Services\ApprovalService;
 
-class CommonExportApprovedListener
+class CommonExportApprovedListener  implements ShouldQueue
 {
     /**
      * Create the event listener.

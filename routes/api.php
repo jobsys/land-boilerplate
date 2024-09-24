@@ -14,7 +14,10 @@ use Tightenco\Ziggy\Ziggy;
 */
 Route::prefix("manager")->name("api.manager.")->group(function () {
 
-    Route::post('/tool/uploadFile', [\App\Http\Controllers\Manager\ToolController::class, 'uploadFile'])->name('tool.uploadFile');
+
+	Route::post('/tool/upload', [\App\Http\Controllers\Manager\ToolController::class, 'upload'])->name('tool.upload');
+
+	Route::post('/configuration', [\App\Http\Controllers\Manager\ConfigurationController::class, 'edit'])->name('configuration.edit');
 
     Route::post('/center/profile', [\App\Http\Controllers\Manager\IndexController::class, 'centerProfileEdit'])->name('center.profile.edit');
     Route::post('/center/password', [\App\Http\Controllers\Manager\IndexController::class, 'centerPasswordEdit'])->name('center.password.edit');

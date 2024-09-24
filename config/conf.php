@@ -1,17 +1,17 @@
 <?php
 return [
-    //是否使用https
-    'use_https' => env('USE_HTTPS', false),
+	//是否使用https
+	'use_https' => env('USE_HTTPS', false),
 
-    //超级管理员角色
-    'super_role' => 'super-admin',
-    //超级管理员账号
-    'super_admin_name' => 'root',
-    'super_admin_id' => 1,
-    //超级管理员密码
-    'super_password' => env('SUPER_PWD', ''),
-    //登录字段
-    'login_field' => ['name'],
+	//超级管理员角色
+	'role_super' => '超级管理员',
+	//超级管理员账号
+	'super_admin_name' => 'root',
+	'super_admin_id' => 1,
+	//超级管理员密码
+	'super_password' => env('SUPER_PWD', ''),
+	//登录字段
+	'login_field' => ['name'],
 
 	//####### 业务配置 ########
 	//系统管理部门

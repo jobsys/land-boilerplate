@@ -25,7 +25,7 @@ class AuthServiceProvider extends ServiceProvider
 	{
 		//超管权限
 		Gate::before(function ($user, $ability) {
-			return $user->hasRole(config('conf.super_role')) ? true : null;
+			return $user->hasRole(config('conf.role_super')) ? true : null;
 		});
 
 		//Log viewer 查看权限

@@ -166,7 +166,7 @@ const state = reactive({
 	searchValue: "",
 	expandedKeys: [],
 	searchExtra: {},
-	roleOptions: props.roles.map((item) => ({ label: item.display_name, value: item.id })),
+	roleOptions: props.roles.map((item) => ({ label: item.name, value: item.id })),
 	showUserEditor: false,
 	url: "",
 	showPassword: false,
@@ -478,7 +478,7 @@ const columns = () => {
 					"div",
 					{},
 					record.roles.length
-						? record.roles.map((item) => h(Tag, { color: "blue" }, { default: () => item.display_name }))
+						? record.roles.map((item) => h(Tag, { color: "blue" }, { default: () => item.name }))
 						: h(Tag, {}, { default: () => "未分配" }),
 				)
 			},

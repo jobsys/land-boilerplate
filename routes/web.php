@@ -28,7 +28,7 @@ Route::name('page.manager.')->prefix('manager')->group(function () {
 
 
 
-Route::get('/', fn() => response('Hello'));
+Route::get('/', fn() => response(config('app.name')));
 
 Route::any('temp/file', function () {
 	if (!request()->hasValidSignature()) {

@@ -10,7 +10,6 @@ use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Intervention\Image\Facades\Image;
 use Pion\Laravel\ChunkUpload\Exceptions\UploadFailedException;
-use Pion\Laravel\ChunkUpload\Handler\AbstractHandler;
 use Pion\Laravel\ChunkUpload\Handler\HandlerFactory;
 use Pion\Laravel\ChunkUpload\Receiver\FileReceiver;
 
@@ -19,13 +18,16 @@ class ToolController extends BaseManagerController
 
 	public function pageDataTransfer()
 	{
-		return Inertia::render('PageDataTransfer');
+		$tab = request('tab', 'export');
+		return Inertia::render('PageDataTransfer', [
+			'tab' => $tab
+		]);
 	}
 
 	/**
 	 * @throws UploadFailedException
 	 */
-	public function uploadFile(Request $request)
+	public function upload(Request $request)
 	{
 		// check if the upload is success, throw exception or return response you need
 		$receiver = new FileReceiver('file', $request, HandlerFactory::classFromRequest($request));
@@ -42,15 +44,10 @@ class ToolController extends BaseManagerController
 			$date_folder = date('Ymd');
 
 
-			$with_thumb = Str::startsWith($mime, 'image/');
-			$type = $request->input('type') === 'private' ? 'private' : 'public';
-			$is_private = $type === 'private';
+			$with_thumb = Str::startsWith($mime, 'image/') && $mime !== 'image/heic';
+			$is_private = $request->input('_disk', false) === 'private';
 
-			if ($is_private) {
-				$file_path = "{$type}/{$mime}/{$date_folder}";
-			} else {
-				$file_path = "{$mime}/{$date_folder}";
-			}
+			$file_path = "{$mime}/{$date_folder}";
 			// save the file and return any response you need
 			if ($is_private) {
 				$result = Storage::disk('private')->putFileAs($file_path, $file, $file_names['file']);
@@ -66,8 +63,8 @@ class ToolController extends BaseManagerController
 				});
 
 				if ($is_private) {
-					$img->save(storage_path('app/' . $file_path . '/' . $file_names['thumb']));
-					$thumb_url = Storage::temporaryUrl($file_path . '/' . $file_names['thumb'], now()->addMinutes(120));
+					$img->save(storage_path('app/private/' . $file_path . '/' . $file_names['thumb']));
+					$thumb_url = Storage::disk('private')->temporaryUrl($file_path . '/' . $file_names['thumb'], now()->addMinutes(120));
 				} else {
 					$img->save(storage_path('app/public/' . $file_path . '/' . $file_names['thumb']));
 					$thumb_url = Storage::disk('public')->url($file_path . '/' . $file_names['thumb']);

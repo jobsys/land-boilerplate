@@ -46,7 +46,7 @@ const getForm = () => {
 			tips: "不超过10M",
 			defaultProps: {
 				accept: ".png,.jpg,.jpeg",
-				action: route("api.manager.tool.uploadFile"),
+				action: route("api.manager.tool.upload"),
 				maxSize: 10,
 				multipart: true,
 				type: "picture-card",

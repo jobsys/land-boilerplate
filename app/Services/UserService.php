@@ -15,6 +15,7 @@ class UserService extends BaseService
 	 * 用户编辑/创建
 	 * @param $attrs
 	 * @param $roles
+	 * @param $departments
 	 * @return array
 	 */
 	public function editUser($attrs, $roles, $departments): array

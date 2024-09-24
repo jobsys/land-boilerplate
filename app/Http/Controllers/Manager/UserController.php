@@ -28,7 +28,7 @@ class UserController extends BaseManagerController
         $super_admin_name = config('conf.super_admin_name', false);
         $department_id = request('department_id', false);
 
-        $query = User::authorise()->with(['departments:id,name', 'roles:id,display_name'])
+        $query = User::authorise()->with(['departments:id,name', 'roles:id,name'])
             ->filterable([
                 'role_id' => function ($builder, $query) {
                     $role_id = $query['value'];
@@ -56,7 +56,6 @@ class UserController extends BaseManagerController
 
         $pagination = $query->paginate();
 
-        log_access('查看用户列表');
 
         return $this->json($pagination);
     }
@@ -66,7 +65,7 @@ class UserController extends BaseManagerController
 
         $super_admin_name = config('conf.super_admin_name', false);
 
-        $item = User::authorise()->with(['roles:id,display_name', 'departments:id,name'])->where('id', $id)->when($super_admin_name, function ($query, $super_admin_name) {
+        $item = User::authorise()->with(['roles:id,name', 'departments:id,name'])->where('id', $id)->when($super_admin_name, function ($query, $super_admin_name) {
             $query->where('name', '<>', $super_admin_name);
         })->first();
 
@@ -74,7 +73,7 @@ class UserController extends BaseManagerController
             return $this->json(null, State::NOT_FOUND);
         }
 
-        log_access('查看用户详情');
+        log_access('查看用户详情', $item);
 
         return $this->json($item);
     }
@@ -105,8 +104,6 @@ class UserController extends BaseManagerController
             return $this->message($error);
         }
 
-        log_access(isset($input['id']) && $input['id'] ? '编辑用户' : '新建用户', $result->id);
-
         return $this->json($error, $result ? State::SUCCESS : State::FAIL);
 
     }
@@ -132,8 +129,6 @@ class UserController extends BaseManagerController
         }
 
         $result = $item->delete();
-
-        log_access('删除用户', $item->id);
 
         return $this->json(null, $result ? State::SUCCESS : State::FAIL);
     }
@@ -180,13 +175,13 @@ class UserController extends BaseManagerController
         $roleMap = [];
 
         $departments = Department::get(['id', 'name']);
-        $roles = Role::get(['id', 'display_name']);
+        $roles = Role::get(['id', 'name']);
 
         $departments->each(function (Department $department) use (&$departmentMap) {
             $departmentMap[$department->name] = $department->id;
         });
         $roles->each(function (Role $role) use (&$roleMap) {
-            $roleMap[$role->display_name] = $role->id;
+            $roleMap[$role->name] = $role->id;
         });
 
         $fields = [
@@ -194,7 +189,7 @@ class UserController extends BaseManagerController
             ['field' => 'work_num', 'label' => '工号', 'rule' => 'nullable|unique:users'],
             ['field' => 'phone', 'label' => '手机号码', 'rule' => 'required|unique:users|regex:/^1[3456789]\d{9}$/'],
             ['field' => 'email', 'label' => '电子邮箱', 'rule' => 'nullable|email|unique:users'],
-            ['field' => 'role', 'label' => '用户角色', 'rule' => 'nullable|in:'.implode(',', $roles->pluck('display_name')->toArray())],
+            ['field' => 'role', 'label' => '用户角色', 'rule' => 'nullable|in:'.implode(',', $roles->pluck('name')->toArray())],
             ['field' => 'department', 'label' => '所属部门', 'rule' => 'nullable|in:'.implode(',', $departments->pluck('name')->toArray())],
             ['field' => 'position', 'label' => '职位'],
             ['field' => 'password', 'label' => '初始密码'],

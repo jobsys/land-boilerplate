@@ -6,6 +6,17 @@ return [
 		"icon" => "HomeOutlined",
 	],
 	[
+		"displayName" => "我的事务",
+		"key" => "my_task_manager",
+		"icon" => "UserOutlined",
+		"children" => [
+			[
+				"displayName" => "待办事项",
+				"page" => 'page.manager.todo'
+			],
+		]
+	],
+	[
 		"displayName" => "组织管理",
 		"icon" => "ApartmentOutlined",
 		"key" => "group_management",
@@ -60,9 +71,10 @@ return [
 				"page" => "page.manager.starter.dict"
 			],
 			[
-				'displayName' => '审批设置',
+				'displayName' => '审核设置',
 				'page' => 'page.manager.approval.process',
 			],
+
 		]
 	]
 ];

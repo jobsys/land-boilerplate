@@ -4,7 +4,11 @@ namespace App\Providers;
 
 use App\Events\CommonExportApproved;
 use App\Listeners\CommonExportApprovedListener;
+use App\Listeners\UserEventListener;
+use Illuminate\Auth\Events\Login;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
+use Modules\Approval\Events\ApprovableCreated;
+use Modules\Approval\Listeners\ApprovableCreatedListener;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -14,9 +18,12 @@ class EventServiceProvider extends ServiceProvider
 	 * @var array<class-string, array<int, class-string>>
 	 */
 	protected $listen = [
+		Login::class => [
+			[UserEventListener::class, 'handleUserLogin']
+		],
 		CommonExportApproved::class => [
 			[CommonExportApprovedListener::class, 'handle']
-		]
+		],
 	];
 
 	/**

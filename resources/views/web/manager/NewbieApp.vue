@@ -27,7 +27,7 @@ const provider = reactive({
 		}),
 	},
 	uploader: {
-		uploadUrl: route("api.manager.tool.uploadFile"),
+		uploadUrl: route("api.manager.tool.upload"),
 		defaultFileItem: {
 			id: "id",
 			name: "name",
@@ -37,12 +37,17 @@ const provider = reactive({
 		},
 	},
 	editor: {
-		uploadUrl: route("api.manager.tool.uploadFile"),
+		uploadUrl: route("api.manager.tool.upload"),
 	},
 	form: {
 		afterFetched: (res) => res.result,
 		format: {
 			date: "YYYY-MM-DD HH:mm",
+			attachment: (value) => {
+				delete value.url
+				delete value.thumbUrl
+				return value
+			},
 		},
 	},
 	search: {

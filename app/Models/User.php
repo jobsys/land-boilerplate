@@ -14,11 +14,13 @@ use Modules\Starter\Traits\Filterable;
 use Modules\Starter\Traits\MessageReceiver;
 use Modules\Starter\Traits\Paginatable;
 use Modules\Starter\Traits\Snsable;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-	use HasDataScopes, Accessable, Authorisations, Filterable, HasApiTokens, HasFactory, HasRoles, MessageReceiver, Notifiable, Paginatable, Snsable;
+	use HasDataScopes, Accessable, Authorisations, Filterable, HasApiTokens, HasFactory, HasRoles, MessageReceiver, Notifiable, Paginatable, Snsable, LogsActivity;
 
 	protected $guarded = [];
 
@@ -64,11 +66,23 @@ class User extends Authenticatable
 
 	public function isSuperAdmin(): bool
 	{
-		return $this->hasRole(config('conf.super_role', 'super-admin'));
+		return $this->hasRole(config('conf.role_super'));
 	}
 
 	public function getModelTypeAttribute(): string
 	{
 		return 'user';
+	}
+
+	public function getActivitylogOptions(): LogOptions
+	{
+		return LogOptions::defaults()->setDescriptionForEvent(function (string $event_name) {
+			return match ($event_name) {
+				'created' => '创建用户',
+				'updated' => '更新用户',
+				'deleted' => '删除用户',
+				default => ''
+			};
+		});
 	}
 }

@@ -6,6 +6,7 @@
 	<link rel="shortcut icon" href="{{ asset('images/' . config('conf.customer_identify') .'/favicon.png') }}">
 	<meta name="csrf-token" content="{{ csrf_token() }}">
 	<title>{{config('app.name')}}</title>
+	<link rel="stylesheet" type="text/css" media="print" href="{{asset('print-lock.css')}}">
 	{{Vite::useBuildDirectory('build/manager')->withEntryPoints(['resources/views/web/manager/main.js'])}}
 	@inertiaHead
 	<script>

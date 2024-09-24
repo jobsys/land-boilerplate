@@ -50,7 +50,7 @@
 									</a-button>
 								</a-badge>
 								<template #content>
-									<NotificationBox class="w-[600px]" :use-store="notificationStore"></NotificationBox>
+									<NotificationBox class="w-[800px]" :use-store="notificationStore"></NotificationBox>
 								</template>
 							</a-popover>
 							<a-dropdown>
@@ -84,7 +84,7 @@
 								<span class="h-6 w-6 leading-6">
 									<img class="h-full w-full rounded-full" :src="profile?.avatar?.url || DefaultAvatar" />
 								</span>
-								<span class="ml-2 text-lg">{{ profile.nickname || profile.name }}</span>
+								<span class="ml-2 text-lg text-nowrap">{{ profile.nickname || profile.name }}</span>
 							</div>
 
 							<template #overlay>
@@ -178,13 +178,13 @@ const setupMenu = (currentPage) => {
 	breads.value = []
 	const currentRoute = route().current()
 	const openFolder = find(menuItems.value, (item) => {
-		if (item.page && item.page === currentRoute) {
+		if (item.page && (item.page === currentRoute || currentRoute?.startsWith(`${item.page}.`))) {
 			breads.value.push({
 				label: item.displayName,
 				icon: item.icon,
 				href: route(item.page),
 			})
-			selectedKeys.value = [currentRoute]
+			selectedKeys.value = [item.page || item.key]
 			return true
 		}
 

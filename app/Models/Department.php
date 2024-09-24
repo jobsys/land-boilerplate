@@ -9,30 +9,33 @@ use Modules\Starter\Entities\BaseModel;
 
 class Department extends BaseModel
 {
-    use Authorisations, NodeTrait;
+	use Authorisations, NodeTrait;
 
-    protected $casts = [
-        'is_active' => 'boolean',
-    ];
 
-    protected $hidden = [
-        '_lft',
-        '_rgt',
-        'updated_at',
-        'created_at',
-    ];
+	protected $model_name = "部门";
 
-    public function users(): BelongsToMany
-    {
-        return $this->belongsToMany(User::class);
-    }
+	protected $casts = [
+		'is_active' => 'boolean',
+	];
 
-    public $appends = [
-        'model_type',
-    ];
+	protected $hidden = [
+		'_lft',
+		'_rgt',
+		'updated_at',
+		'created_at',
+	];
 
-    public function getModelTypeAttribute(): string
-    {
-        return 'department';
-    }
+	public function users(): BelongsToMany
+	{
+		return $this->belongsToMany(User::class);
+	}
+
+	public $appends = [
+		'model_type',
+	];
+
+	public function getModelTypeAttribute(): string
+	{
+		return 'department';
+	}
 }

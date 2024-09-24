@@ -54,8 +54,6 @@ class DepartmentController extends BaseManagerController
 
         $result = Department::updateOrCreate(['id' => $input['id'] ?? null], $input);
 
-        log_access(isset($input['id']) && $input['id'] ? '编辑部门' : '新建部门', $result->id);
-
         return $this->json(null, $result ? State::SUCCESS : State::FAIL);
     }
 
@@ -64,8 +62,6 @@ class DepartmentController extends BaseManagerController
 		$items = Department::authorise()->whereNull('parent_id')->orderBy('sort_order', 'DESC')->get();
 
 		$items = land_get_closure_tree($items);
-
-        log_access('查看部门列表');
 
         return $this->json($items);
     }
@@ -78,7 +74,7 @@ class DepartmentController extends BaseManagerController
             return $this->json(null, State::NOT_FOUND);
         }
 
-        log_access('查看部门详情', $id);
+        log_access('查看部门详情', $item);
 
         return $this->json($item);
     }
@@ -100,8 +96,6 @@ class DepartmentController extends BaseManagerController
         }
 
         $result = $item->delete();
-
-        log_access('删除部门', $id);
 
         return $this->json(null, $result ? State::SUCCESS : State::FAIL);
     }

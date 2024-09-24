@@ -43,7 +43,6 @@ class BaseManagerController extends BaseController
 			return $next($request);
 		});
 
-		$this->middleware('dataScope.setup');
 
 		$this->middleware(function ($request, $next) {
 			Inertia::setRootView('manager');

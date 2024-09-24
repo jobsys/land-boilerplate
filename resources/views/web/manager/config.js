@@ -2,8 +2,8 @@ import { get } from "lodash-es"
 
 /**
  *
- * @param {String} [key] ¼üÂ·¾¶
- * @param {*} [defaultValue] Ä¬ÈÏÖµ
+ * @param {String} [key] é”®è·¯å¾„
+ * @param {*} [defaultValue] é»˜è®¤å€¼
  * @return {*}
  */
 export function useAppConfig(key, defaultValue) {

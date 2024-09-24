@@ -76,6 +76,7 @@ const getForm = () => {
 			title: "上级部门",
 			type: "tree-select",
 			options: state.options,
+			width: 400,
 			defaultProps: {
 				treeNodeFilterProp: "name",
 				fieldNames: {

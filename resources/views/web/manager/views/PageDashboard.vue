@@ -10,13 +10,13 @@
 					<div class="text-gray-500">
 						<div v-if="departments.length">
 							<span class="mr-2">部门:</span>
-							<a-tag v-for="department in departments" :key="department.name" color="red">
-								{{ department.display_name }}
+							<a-tag v-for="department in departments" :key="department" color="red">
+								{{ department }}
 							</a-tag>
 						</div>
 						<div v-if="roles.length">
 							<span class="mr-2">角色:</span>
-							<a-tag v-for="role in roles" :key="role.name" color="green">{{ role.display_name }}</a-tag>
+							<a-tag v-for="role in roles" :key="role" color="green">{{ role }}</a-tag>
 						</div>
 					</div>
 				</div>

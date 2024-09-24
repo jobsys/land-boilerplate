@@ -12,6 +12,12 @@ class BootPermission
 	{
 		return [
 			'page.manager.dashboard' => '工作台',
+			'page.manager.todo' => [
+				'display_name' => '待办事项',
+				'children' => [
+					'page.manager.todo.approval' => '审核待办',
+				],
+			],
 			'page.manager.permission.role' => [
 				'display_name' => '角色管理',
 				'children' => [
@@ -78,19 +84,20 @@ class BootPermission
 					'type' => 'model',
 					'model' => User::class,
 				],
-				[
+		/*		[
 					'displayName' => '教学体系数据',
 					'name' => 'teaching-system',
 					'type' => 'rule',
 					'withCustom' => true,
-					'customOptions' => [ //按顺序定义，上一个的限制条件将会作为条件传递给下一个查询
-						/*[
+					'customOptions' => [
+						//按顺序定义，上一个的限制条件将会作为条件传递给下一个查询
+						[
 							'displayName' => '校区管辖范围',
 							'type' => 'select',
 							'field' => 'campus_id',
 							'options' => fn() => []
-						],*/
-						/*[
+						],
+						[
 							'displayName' => '院系管辖范围',
 							'type' => 'select',
 							'field' => 'college_id',
@@ -104,8 +111,8 @@ class BootPermission
 								}
 								return $query->get(['name', 'id'])->map(fn($college) => ['label' => $college->name, 'value' => $college->id])->toArray();
 							}
-						],*/
-						/*[
+						],
+						[
 							'displayName' => '专业管辖范围',
 							'type' => 'select',
 							'field' => 'major_id',
@@ -119,15 +126,15 @@ class BootPermission
 								}
 								return $query->get(['major_name', 'id'])->map(fn($major) => ['label' => $major->major_name, 'value' => $major->id])->toArray();
 							}
-						],*/
-						/*[
+						],
+						[
 							'displayName' => '班级管辖范围',
 							'type' => 'select',
-							'field' => 'clazz_id',
+							'field' => 'stu_class_id',
 							'options' => fn() => []
-						],*/
+						],
 					],
-				],
+				],*/
 			]
 		];
 	}

@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Config\Repository;
-use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -98,7 +97,6 @@ if (!function_exists('land_get_closure_tree')) {
 		return $single ? $items[0] : $items;
 	}
 }
-
 
 if (!function_exists('land_tidy_tree')) {
 	/**
@@ -297,7 +295,6 @@ if (!function_exists('land_form_validate')) {
 	 * @param array $rules
 	 * @param array $mapping
 	 * @return array
-	 * @throws BindingResolutionException
 	 */
 	function land_form_validate(array $input = [], array $rules = [], array $mapping = []): array
 	{
@@ -339,5 +336,44 @@ if (!function_exists('land_fake_phone')) {
 	function land_fake_phone(string $phone): string
 	{
 		return substr($phone, 0, 3) . '****' . substr($phone, -4);
+	}
+}
+
+if (!function_exists('land_slug')) {
+	/**
+	 * 根据给定的字符串生成唯一的 slug
+	 * @param $prop
+	 * @param $model
+	 * @param array $condition
+	 * @param string $filed
+	 * @return string
+	 */
+	function land_slug($prop, $model, array $condition = [], string $filed = 'slug'): string
+	{
+		$slug = mb_strlen($prop) > 10 ? pinyin_abbr($prop) : pinyin_permalink($prop);
+		if ($slug instanceof \Overtrue\Pinyin\Collection) {
+			$slug = $slug->join("");
+		}
+		$slug = strtolower($slug);
+
+		$index = 1;
+		while (!land_is_model_unique([$filed => $slug], $model, $filed, true, $condition)) {
+			$slug = $slug . $index;
+			$index += 1;
+		}
+
+		return $slug;
+	}
+}
+
+if (!function_exists('land_split_by_line')) {
+	/**
+	 * 按行分割
+	 * @param string $text
+	 * @return array
+	 */
+	function land_split_by_line(string $text): array
+	{
+		return preg_split('/\r\n|\r|\n/', $text);
 	}
 }

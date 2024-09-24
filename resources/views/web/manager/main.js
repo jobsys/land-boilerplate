@@ -13,14 +13,20 @@ import useUserStore from "@manager/stores/user"
 import { createPinia } from "pinia"
 import { http } from "@/js/plugins"
 import NewbieApp from "./NewbieApp.vue"
-import Layout from "./shared/CommonLayout.vue"
+import CommonLayout from "./shared/CommonLayout.vue"
 import { useAppConfig } from "./config"
+import { useSystemStore } from "@manager/stores"
+
+//有加入打印模块时解封
+//import { hiPrintPlugin } from "vue-plugin-hiprint"
+//hiPrintPlugin.disAutoConnect()
 
 dayjs.locale("zh-cn")
 const pinia = createPinia()
 
 function resolvePage(pageUri) {
-	const [page, module] = pageUri.split("@")
+	const [pageInfo, layout] = pageUri.split("#")
+	const [page, module] = pageInfo.split("@")
 
 	let pages
 	let pagePath
@@ -37,7 +43,14 @@ function resolvePage(pageUri) {
 		throw new Error(`Page not found: ${pagePath}`)
 	}
 
-	resolvedPage.default.layout = page.startsWith("Nude") ? undefined : Layout
+	if (page.startsWith("Nude")) {
+		resolvedPage.default.layout = undefined
+	} else if (layout) {
+		const layouts = import.meta.glob("./shared/**/*.vue", { eager: true })
+		resolvedPage.default.layout = [CommonLayout, layouts[`./shared/${layout}.vue`].default]
+	} else {
+		resolvedPage.default.layout = CommonLayout
+	}
 
 	return resolvedPage
 }
@@ -51,13 +64,15 @@ createInertiaApp({
 	setup({ el, App, props, plugin }) {
 		const app = createApp(h(NewbieApp, {}, () => [h(App, props)]))
 
-		app.use(Newbie).use(plugin).use(http).use(pinia)
+		app.use(Newbie).use(plugin).use(http).use(pinia).use(hiPrintPlugin, "$pluginName")
 
 		// 先初始化用户信息再挂载App
 		const userStore = useUserStore()
 		userStore.init(window.landUserSetup || {})
 
 		app.use(auth, { defaultPermissions: userStore.permissions })
+
+		useSystemStore()
 
 		app.config.globalProperties.$http.get("api/ziggy/manager").then((routes) => {
 			app.use(ZiggyVue, routes)
