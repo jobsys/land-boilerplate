@@ -12,7 +12,7 @@
 		"ant-design-vue": "4.1.2",
 		"axios": "1.6.8",
 		"dayjs": "1.11.10",
-		"jobsys-newbie": "1.14.5",
+		"jobsys-newbie": "1.15.4",
 		"lodash-es": "4.17.21",
 		"pinia": "2.1.7",
 		"simplebar-vue": "^2.3.3",
