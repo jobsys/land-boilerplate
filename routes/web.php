@@ -14,6 +14,22 @@ use Illuminate\Support\Facades\Storage;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+
+
+Route::get('/', [\App\Http\Controllers\Controller::class, 'index'])->name('index');
+
+// 有 CAS 认证时开启
+// Route::get('/cas/login', [\App\Http\Controllers\CasCgiController::class, 'login'])->name('cas.login');
+
+Route::any('/temp/file', function (Request $request) {
+
+	if (!request()->hasValidSignature()) {
+		abort(401);
+	}
+
+	return Storage::disk('private')->download(request('path'));
+})->name('temp.file');
+
 Route::name('page.manager.')->prefix('manager')->group(function () {
 	Route::get('/', [\App\Http\Controllers\Manager\IndexController::class, 'pageDashboard'])->name('dashboard');
 	Route::get('/tool/data-transfer', [\App\Http\Controllers\Manager\ToolController::class, 'pageDataTransfer'])->name('tool.data-transfer');
@@ -26,14 +42,3 @@ Route::name('page.manager.')->prefix('manager')->group(function () {
 
 });
 
-
-
-Route::get('/', fn() => response(config('app.name')));
-
-Route::any('temp/file', function () {
-	if (!request()->hasValidSignature()) {
-		abort(401);
-	}
-
-	return Storage::disk('private')->download(request('path'));
-})->name('temp.file');

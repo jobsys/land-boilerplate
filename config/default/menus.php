@@ -44,6 +44,10 @@ return [
 				'displayName' => '数据传输',
 				'page' => 'page.manager.tool.data-transfer',
 			],
+			[
+				"displayName" => "访问日志",
+				"page" => "page.manager.starter.log",
+			],
 		]
 	],
 	[
@@ -74,7 +78,10 @@ return [
 				'displayName' => '审核设置',
 				'page' => 'page.manager.approval.process',
 			],
-
+			[
+				"displayName" => "安全设置",
+				"page" => "page.manager.configuration.security",
+			],
 		]
 	]
 ];

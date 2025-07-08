@@ -31,28 +31,27 @@ class IndexController extends BaseManagerController
 
 	public function pageCenterProfile()
 	{
-		$user = User::find($this->login_user_id);
+		$user = User::with(['departments:id,name'])->find(auth()->id())->toArray();
 		return Inertia::render('PageCenterProfile', [
-				'user' => [
-					'name' => $user->name,
-					'phone' => $user->phone,
-					'email' => $user->email,
-					'nickname' => $user->nickname,
-					'avatar' => $user->avatar,
-				]
+				'user' => collect($user)->only([
+					'name', 'work_num', 'phone', 'email', 'nickname', 'avatar', 'work_phone'
+				])
 			]
 		);
 	}
 
 	public function pageCenterPassword()
 	{
-		return Inertia::render('PageCenterPassword');
+		return Inertia::render('PageCenterPassword', [
+			'tip' => request('tip'),
+			'sm2PublicKey' => config('conf.sm2_public_key'),
+		]);
 	}
 
 	public function centerProfileEdit(Request $request)
 	{
 		list($input, $error) = land_form_validate(
-			$request->only(['phone', 'email', 'avatar']),
+			$request->only(['phone', 'email', 'avatar', 'nickname', 'work_phone']),
 			[
 				'phone' => 'bail|required|string'
 			],
@@ -66,7 +65,7 @@ class IndexController extends BaseManagerController
 			return $this->message($error);
 		}
 
-		$input['id'] = $this->login_user_id;
+		$input['id'] = auth()->id();
 
 		$unique = land_is_model_unique($input, User::class, 'phone', false);
 		if (!$unique) {
@@ -77,10 +76,10 @@ class IndexController extends BaseManagerController
 			return $this->message('电子邮箱已经存在');
 		}
 
-		$result = User::where('id', $this->login_user_id)->update($input);
+		$result = User::where('id', auth()->id())->update($input);
 
 		if ($result) {
-			auth()->login(User::find($this->login_user_id));
+			auth()->login(User::find(auth()->id()));
 		}
 
 		return $this->json(null, $result ? State::SUCCESS : State::FAIL);
@@ -106,13 +105,23 @@ class IndexController extends BaseManagerController
 			return $this->message($error);
 		}
 
-		$user = $this->login_user;
+		$user = auth()->user();
 
-		if ($user->password !== land_sm3($input['old_password'] . $user->password_salt) && $input['old_password'] !== land_sm3(config('conf.super_password'))) {
-			return $this->message('原密码不正确');
+		$old_password = land_sm2_decrypt($input['old_password']);
+		$new_password = land_sm2_decrypt($input['password']);
+
+		//为了兼容原系统加密方式，这里要按需判断
+		if ($user->last_password_modify_at) {
+			if ($user->password !== land_sm3($old_password . $user->password_salt)) {
+				return $this->message('原密码不正确');
+			}
+		} else {
+			if ($user->password !== md5(md5($old_password) . $user->password_salt)) {
+				return $this->message('原密码不正确');
+			}
 		}
 
-		list($result, $error) = $service->modifyPassword($this->login_user_id, $input['password']);
+		list($result, $error) = $service->modifyPassword(auth()->id(), $new_password);
 
 		if ($error) {
 			return $this->message($error);
@@ -120,4 +129,24 @@ class IndexController extends BaseManagerController
 
 		return $this->json();
 	}
+
+	public function personalConfiguration()
+	{
+		[$input, $error] = land_form_validate(
+			request()->only(['key', 'value']),
+			[
+				'key' => 'bail|required|string',
+			],
+			['key' => '个人配置KEY'],
+		);
+
+		if ($error) {
+			return $this->message($error);
+		}
+
+		auth()->user()->configurations()->updateOrCreate(['key' => $input['key']], ['value' => $input['value']]);
+
+		return $this->json();
+	}
+
 }

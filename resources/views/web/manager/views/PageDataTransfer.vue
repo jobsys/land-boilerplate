@@ -10,6 +10,8 @@
 				:filterable="false"
 				:url="route('api.manager.import-export.items', { mode: 'export' })"
 				:columns="exportColumns()"
+				class="hover-card"
+				:table-props="{ size: 'small' }"
 			>
 			</NewbieTable>
 		</a-tab-pane>
@@ -25,6 +27,8 @@
 				:filterable="false"
 				:url="route('api.manager.import-export.items', { mode: 'import' })"
 				:columns="importColumns()"
+				class="hover-card"
+				:table-props="{ size: 'small' }"
 			>
 			</NewbieTable>
 		</a-tab-pane>
@@ -47,6 +51,7 @@ import { message, Tag } from "ant-design-vue"
 import { AuditOutlined, DownloadOutlined, ExportOutlined, ImportOutlined } from "@ant-design/icons-vue"
 import { useFetch, useHiddenForm, useProcessStatusSuccess } from "jobsys-newbie/hooks"
 import ApprovalBox from "@modules/Approval/Resources/views/web/components/ApprovalBox.vue"
+import { useIntervalFn } from "@vueuse/core"
 
 const props = defineProps({
 	tab: { type: String, default: "" },
@@ -70,6 +75,17 @@ const state = reactive({
 	showReviewModal: false,
 	currentItem: null,
 })
+
+useIntervalFn(() => {
+	if (state.activeKey === "export") {
+		if (exportTableRef.value) {
+			const items = exportTableRef.value.getData()
+			if (items?.length && items.filter((item) => item.status === "processing")?.length) {
+				exportTableRef.value?.doFetch()
+			}
+		}
+	}
+}, 10000)
 
 const onDownload = (item) => {
 	if (item.approval_status !== "approved" && item.type === "export") {
@@ -97,49 +113,89 @@ const onAfterApproved = () => {
 	exportTableRef.value?.doFetch(true)
 }
 
-const exportColumns = () => {
-	return [
-		{
-			title: "任务名称",
-			width: 100,
-			dataIndex: "task_name",
+const exportColumns = () => [
+	{
+		title: "任务名称",
+		width: 400,
+		dataIndex: "task_name",
+	},
+	{
+		title: "审核状态",
+		width: 100,
+		align: "center",
+		key: "approval_status",
+		customRender({ record }) {
+			return useTableActions({
+				type: "tag",
+				props: {
+					color: statusMap[record.approval_status]?.color || "blue",
+				},
+				name: statusMap[record.approval_status]?.text || "待审核",
+			})
 		},
-		{
-			title: "审核状态",
-			width: 100,
-			align: "center",
-			key: "approval_status",
-			customRender({ record }) {
-				return useTableActions({
-					type: "tag",
-					props: {
-						color: statusMap[record.approval_status]?.color || "blue",
-					},
-					name: statusMap[record.approval_status]?.text || "待审核",
-				})
-			},
-		},
-		{
-			title: "操作人",
-			width: 60,
-			dataIndex: ["creator", "name"],
-		},
-		{
-			title: "操作时间",
-			width: 100,
-			dataIndex: "created_at",
-		},
-		{
-			title: "操作",
-			width: 160,
-			key: "operation",
-			align: "center",
-			fixed: "right",
-			customRender({ record }) {
-				const actions = []
+	},
+	{
+		title: "任务状态",
+		width: 160,
+		dataIndex: "status",
+		align: "center",
+		customRender({ record }) {
+			if (record.status === "pending") {
+				return h(Tag, { color: "blue" }, () => "未开始")
+			}
+			if (record.status === "failed") {
+				return h(Tag, { color: "red" }, () => "导出失败")
+			}
+			if (record.status === "processing") {
+				const elements = [h(Tag, { color: "orange" }, () => "处理中")]
 
+				if (record.progress && record.progress.total_rows) {
+					elements.push(h(Tag, { color: "cyan" }, () => `${record.progress.current_row}/${record.progress.total_rows}`))
+				}
+				return elements
+			}
+			return h(Tag, { color: "green" }, () => "已完成")
+		},
+	},
+	{
+		title: "导出数据量",
+		width: 120,
+		align: "center",
+		dataIndex: "total_count",
+	},
+	{
+		title: "操作人",
+		width: 100,
+		dataIndex: ["creator", "name"],
+	},
+	{
+		title: "操作时间",
+		width: 160,
+		dataIndex: "created_at",
+	},
+	{
+		title: "操作",
+		width: 160,
+		key: "operation",
+		align: "center",
+		fixed: "right",
+		customRender({ record }) {
+			const actions = []
+
+			if (record.status === "processing") {
 				actions.push({
-					name: "下载",
+					name: "导出中",
+					props: {
+						icon: h(ExportOutlined),
+						size: "small",
+						loading: true,
+					},
+				})
+			}
+
+			if (record.status === "done") {
+				actions.push({
+					name: "下载导出文件",
 					props: {
 						icon: h(DownloadOutlined),
 						size: "small",
@@ -149,93 +205,91 @@ const exportColumns = () => {
 						onDownload(record)
 					},
 				})
+			}
 
-				if (record.can_approve) {
-					actions.push({
-						name: "审核",
-						props: {
-							icon: h(AuditOutlined),
-							size: "small",
-							loading: record.isLoading,
-						},
-						action() {
-							onReview(record)
-						},
-					})
-				}
-
-				return useTableActions(actions)
-			},
-		},
-	]
-}
-
-const importColumns = () => {
-	return [
-		{
-			title: "任务名称",
-			width: 100,
-			dataIndex: "task_name",
-		},
-		{
-			title: "操作人",
-			width: 60,
-			dataIndex: ["creator", "name"],
-		},
-		{
-			title: "操作时间",
-			width: 100,
-			dataIndex: "created_at",
-		},
-		{
-			title: "任务状态",
-			width: 60,
-			dataIndex: "status",
-			align: "center",
-			customRender({ record }) {
-				if (record.status === "pending") {
-					return h(Tag, { color: "blue" }, () => "待处理")
-				}
-				if (record.status === "processing") {
-					return h(Tag, { color: "yellow" }, () => "处理中")
-				}
-				return h(Tag, { color: "green" }, () => "已完成")
-			},
-		},
-		{
-			title: "任务结束时间",
-			width: 100,
-			dataIndex: "ended_at",
-		},
-		{
-			title: "任务用时",
-			width: 60,
-			dataIndex: "duration",
-			align: "center",
-		},
-		{
-			title: "操作",
-			width: 160,
-			key: "operation",
-			align: "center",
-			fixed: "right",
-			customRender({ record }) {
-				const actions = []
-
+			if (record.can_approve) {
 				actions.push({
-					name: "下载数据文件",
+					name: "审核",
 					props: {
-						icon: h(DownloadOutlined),
+						icon: h(AuditOutlined),
 						size: "small",
+						loading: record.isLoading,
 					},
 					action() {
-						onDownload(record)
+						onReview(record)
 					},
 				})
+			}
 
-				return useTableActions(actions)
-			},
+			return useTableActions(actions)
 		},
-	]
-}
+	},
+]
+
+const importColumns = () => [
+	{
+		title: "任务名称",
+		width: 100,
+		dataIndex: "task_name",
+	},
+	{
+		title: "操作人",
+		width: 60,
+		dataIndex: ["creator", "name"],
+	},
+	{
+		title: "操作时间",
+		width: 100,
+		dataIndex: "created_at",
+	},
+	{
+		title: "任务状态",
+		width: 60,
+		dataIndex: "status",
+		align: "center",
+		customRender({ record }) {
+			if (record.status === "pending") {
+				return h(Tag, { color: "blue" }, () => "待处理")
+			}
+			if (record.status === "processing") {
+				return h(Tag, { color: "yellow" }, () => "处理中")
+			}
+			return h(Tag, { color: "green" }, () => "已完成")
+		},
+	},
+	{
+		title: "任务结束时间",
+		width: 100,
+		dataIndex: "ended_at",
+	},
+	{
+		title: "任务用时",
+		width: 60,
+		dataIndex: "duration",
+		align: "center",
+	},
+	{
+		title: "操作",
+		width: 160,
+		key: "operation",
+		align: "center",
+		fixed: "right",
+		customRender({ record }) {
+			const actions = []
+
+			actions.push({
+				name: "下载数据文件",
+				props: {
+					icon: h(DownloadOutlined),
+					size: "small",
+				},
+				action() {
+					onDownload(record)
+				},
+			})
+
+			return useTableActions(actions)
+		},
+	},
+]
 </script>

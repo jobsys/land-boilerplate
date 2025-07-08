@@ -2,8 +2,6 @@
 
 namespace Database\Seeders;
 
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 use Modules\Permission\Database\Seeders\PermissionDatabaseSeeder;
 
@@ -14,11 +12,20 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-		$identify = ucfirst(config('conf.customer_identify'));
-		$this->call([
+
+		$seeders = [
 			SetupSeeder::class,
 			PermissionDatabaseSeeder::class,
-			"Database\\Seeders\\Dict{$identify}Seeder"
-		]);
+		];
+
+		$identify = ucfirst(config('conf.customer_identify'));
+
+		if (file_exists(base_path("database/seeders/Dict{$identify}Seeder.php"))) {
+			$seeders[] = "Database\\Seeders\\Dict{$identify}Seeder";
+		} else {
+			$seeders[] = DictDefaultSeeder::class;
+		}
+
+		$this->call($seeders);
     }
 }

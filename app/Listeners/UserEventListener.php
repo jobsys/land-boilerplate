@@ -11,8 +11,8 @@ class UserEventListener
 	{
 		//后台非超管用户登录后触发
 		if ($event->guard === 'web' && !$event->user->isSuperAdmin()) {
-			/*$auth_student_ids = Student::authorise()->get(['id'])->pluck('id')->toArray();
-			session(['auth_student_ids' => $auth_student_ids]);*/
+			$scope = $event->user->getDataScope();
+			//TODO 可以根据用户的数据权限范围进行自定义操作
 		}
 	}
 }

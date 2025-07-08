@@ -84,54 +84,86 @@ class BootPermission
 					'type' => 'model',
 					'model' => User::class,
 				],
-		/*		[
+				/*[
 					'displayName' => '教学体系数据',
 					'name' => 'teaching-system',
 					'type' => 'rule',
 					'withCustom' => true,
 					'customOptions' => [
-						//按顺序定义，上一个的限制条件将会作为条件传递给下一个查询
-						[
-							'displayName' => '校区管辖范围',
-							'type' => 'select',
-							'field' => 'campus_id',
-							'options' => fn() => []
-						],
 						[
 							'displayName' => '院系管辖范围',
 							'type' => 'select',
 							'field' => 'college_id',
-							'options' => function (array $conditions) {
-								$query = app(College::class);
-
-								if (!empty($conditions)) {
-									foreach ($conditions as $key => $value) {
-										$query = $query::whereIn($key, is_array($value) ? $value : [$value]);
-									}
-								}
-								return $query->get(['name', 'id'])->map(fn($college) => ['label' => $college->name, 'value' => $college->id])->toArray();
+							'options' => function () {
+								return College::orderByDesc('sort_order')->get(['name', 'id'])->map(fn(College $college) => ['label' => $college->name, 'value' => $college->id])->toArray();
 							}
 						],
 						[
 							'displayName' => '专业管辖范围',
-							'type' => 'select',
+							'type' => 'tree',
 							'field' => 'major_id',
-							'options' => function (array $conditions) {
-								$query = app(Major::class);
-
-								if (!empty($conditions)) {
-									foreach ($conditions as $key => $value) {
-										$query = $query::whereIn($key, is_array($value) ? $value : [$value]);
-									}
+							'options' => function () {
+								$colleges = College::orderByDesc('sort_order')->get(['id', 'name']);
+								$majors = Major::withCount(['students'])->get(['name', 'id', 'college_id', 'duration']);
+								$options = [];
+								foreach ($colleges as $college) {
+									$options[] = [
+										'label' => $college->name,
+										'value' => 'college@' . $college->id,
+										'children' => $majors->where('college_id', $college->id)->values()->map(fn(Major $major) => ['label' => "{$major->name}【{$major->duration}年制】({$major->students_count}人)", 'value' => $major->id])->toArray()
+									];
 								}
-								return $query->get(['major_name', 'id'])->map(fn($major) => ['label' => $major->major_name, 'value' => $major->id])->toArray();
+								return $options;
+							}
+						],
+						[
+							'displayName' => '校区管辖范围',
+							'type' => 'select',
+							'field' => 'campus_id',
+							'options' => function () {
+								return Campus::get(['name', 'id'])->map(fn(Campus $campus) => ['label' => $campus->name, 'value' => $campus->id])->toArray();
 							}
 						],
 						[
 							'displayName' => '班级管辖范围',
-							'type' => 'select',
+							'type' => 'remote',
 							'field' => 'stu_class_id',
-							'options' => fn() => []
+							'remoteOptions' => [
+								'url' => route('api.manager.stu-class.items'),
+								'keyword' => 'name',
+							],
+						],
+						[
+							'displayName' => '年级管辖范围',
+							'type' => 'select',
+							'field' => 'stu_class.year',
+							'options' => function () {
+								return StuClass::select('year')->distinct()->pluck('year')
+									->filter(fn($year) => boolval($year))->sortDesc()->values()
+									->map(fn($year) => ['label' => $year, 'value' => $year])->toArray();
+							}
+						],
+						[
+							'displayName' => '专业年级联合管辖范围',
+							'type' => 'tree',
+							'field' => 'major_year',
+							'options' => function () {
+
+								$stu_class_years = StuClass::select('year')->distinct()->pluck('year')
+									->filter(fn($year) => boolval($year))->sortDesc();
+
+								$majors = Major::get(['name', 'id']);
+
+								$options = [];
+								foreach ($stu_class_years as $year) {
+									$options[] = [
+										'label' => $year,
+										'value' => $year,
+										'children' => $majors->map(fn(Major $major) => ['label' => $year . $major->name, 'value' => $major->id . '@' . $year])->toArray()
+									];
+								}
+								return $options;
+							}
 						],
 					],
 				],*/

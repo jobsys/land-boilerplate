@@ -2,7 +2,7 @@
 	<div class="main-content">
 		<a-row :gutter="10">
 			<a-col span="5">
-				<a-card size="small" :loading="state.departmentLoading.loading">
+				<a-card size="small" class="hover-card" :loading="state.departmentLoading.loading">
 					<template #title>
 						<a-input-search v-model:value="state.searchValue" allow-clear placeholder="搜索部门" size="small" />
 					</template>
@@ -37,7 +37,15 @@
 				</a-card>
 			</a-col>
 			<a-col span="19">
-				<NewbieTable ref="list" title="账号列表" :columns="columns()" :url="route('api.manager.user.items', state.searchExtra)" row-selection>
+				<NewbieTable
+					ref="tableRef"
+					title="账号列表"
+					:columns="tableColumns()"
+					:url="route('api.manager.user.items', state.searchExtra)"
+					row-selection
+					class="hover-card"
+					:table-props="{ size: 'small' }"
+				>
 					<template #functional>
 						<NewbieButton v-if="$auth('api.manager.user.edit')" type="primary" :icon="h(PlusOutlined)" @click="onEdit(false)"
 							>新增账号
@@ -62,18 +70,19 @@
 				</NewbieTable>
 			</a-col>
 		</a-row>
-		<NewbieModal v-model:visible="state.showUserEditor" title="账号编辑" :width="600">
+		<NewbieModal v-model:visible="state.showUserEditor" title="账号编辑" :width="1200" :height="700">
 			<NewbieForm
-				ref="edit"
+				ref="formRef"
 				:fetch-url="state.url"
 				:auto-load="!!state.url"
 				:submit-url="route('api.manager.user.edit')"
 				:card-wrapper="false"
 				:before-submit="onBeforeSubmit"
 				:after-fetched="onAfterFetch"
-				:form="getForm()"
+				:form="formColumns()"
 				:close="closeEditor"
 				:submit-disabled="!$auth('api.manager.user.edit')"
+				:columns="[12, 12]"
 				@success="closeEditor(true)"
 			/>
 		</NewbieModal>
@@ -115,18 +124,23 @@
 			ref="userImportRef"
 			:url="route('api.manager.user.import')"
 			template-url="/templates/user-import-template.xlsx"
-			:progress-url="route('api.manager.import-export.progress')"
+			:progress-url="route('api.manager.import-export.import.progress')"
 			:tips="['模板中红色字段为必填项']"
 		/>
 
-		<PermissionAuthorization ref="permissionAuthorizationRef" mode="user" :info="state.currentItem"></PermissionAuthorization>
+		<PermissionAuthorization
+			ref="permissionAuthorizationRef"
+			:title="`${state.currentItem?.nickname} ${state.currentItem?.work_num || ''} - 权限管理`"
+			mode="user"
+			:info="state.currentItem"
+		></PermissionAuthorization>
 	</div>
 </template>
 
 <script setup>
 import { ApartmentOutlined, AuditOutlined, DeleteOutlined, EditOutlined, ImportOutlined, MoreOutlined, PlusOutlined } from "@ant-design/icons-vue"
 import { NewbiePassword, useTableActions } from "jobsys-newbie"
-import { useDateFormat, useFetch, useModalConfirm, useProcessStatusSuccess, useSm3 } from "jobsys-newbie/hooks"
+import { useDateFormat, useFetch, useModalConfirm, useProcessStatusSuccess, useSm2 } from "jobsys-newbie/hooks"
 import { h, inject, nextTick, reactive, ref, watch } from "vue"
 import { Button, message, Tag, TreeSelect } from "ant-design-vue"
 import { cloneDeep } from "lodash-es"
@@ -136,6 +150,7 @@ import PermissionAuthorization from "@modules/Permission/Resources/views/web/com
 const { SHOW_ALL } = TreeSelect
 
 const props = defineProps({
+	sm2PublicKey: { type: String, default: "" },
 	departments: {
 		type: Array,
 		default: () => [],
@@ -149,8 +164,8 @@ const props = defineProps({
 const auth = inject("auth")
 const route = inject("route")
 
-const list = ref()
-const edit = ref()
+const tableRef = ref()
+const formRef = ref()
 const userImportRef = ref()
 const permissionAuthorizationRef = ref()
 
@@ -202,7 +217,7 @@ const onSelect = (keys) => {
 		department_id: keys.length ? keys[0] : "",
 	}
 	nextTick(() => {
-		list.value.doFetch(true)
+		tableRef.value.doFetch(true)
 	})
 }
 
@@ -257,7 +272,7 @@ watch(
 )
 
 const onBeforeEditDepartment = () => {
-	const selectedRows = list.value?.getSelection()
+	const selectedRows = tableRef.value?.getSelection()
 
 	if (!selectedRows.length) {
 		message.error("请先勾选数据")
@@ -280,118 +295,150 @@ const onSaveDepartment = async () => {
 	useProcessStatusSuccess(res, () => {
 		message.success("保存成功")
 		state.showDepartmentEditEditor = false
-		list.value?.doFetch()
+		tableRef.value?.doFetch()
 	})
 }
 
-const getForm = () => {
-	return [
-		{
-			key: "name",
-			title: "用户名",
-			required: true,
+const formColumns = () => [
+	{
+		key: "avatar",
+		title: "头像",
+		type: "uploader",
+		tips: "不超过10M",
+		defaultProps: {
+			accept: ".png,.jpg,.jpeg",
+			action: route("api.manager.tool.upload"),
+			maxSize: 10,
+			multipart: true,
+			type: "picture-card",
 		},
-		{
-			key: "work_num",
-			title: "工号",
-		},
-		{
-			key: "phone",
-			required: true,
-			title: "手机号码",
-			rules: [{ required: true, message: "请填写正确的手机号码", pattern: /^1[3456789]\d{9}$/ }],
-		},
-		{
-			key: "departments",
-			title: "所属部门",
-			type: "tree-select",
-			width: 300,
-			options: props.departments,
-			defaultProps: {
-				treeDefaultExpandAll: false,
-				treeCheckable: true,
-				treeCheckStrictly: true,
-				showCheckedStrategy: TreeSelect.SHOW_ALL,
-				treeNodeFilterProp: "name",
-				fieldNames: {
-					children: "children",
-					label: "name",
-					value: "id",
+	},
+	{
+		key: "is_active",
+		title: "账号状态",
+		type: "switch",
+		options: ["正常", "禁用"],
+		defaultValue: true,
+		columnIndex: 1,
+	},
+	{
+		break: true,
+		key: "name",
+		title: "用户名",
+		required: true,
+		rules: [
+			{
+				pattern: /^[a-zA-Z0-9_-]{6,16}$/,
+				message: "用户名只能包含字母、数字、下划线和短横线，长度为6-16位",
+			},
+		],
+	},
+	{
+		key: "password",
+		title: "用户密码",
+		message: "请填写密码",
+		columnIndex: 1,
+		customRender: ({ submitForm }) => {
+			if (submitForm.id) {
+				// 显示一个按钮，点击后显示密码输入框
+				return h("div", {}, [
+					!state.showPassword
+						? h(
+								Button,
+								{
+									type: "primary",
+									onClick() {
+										state.showPassword = true
+									},
+								},
+								{ default: () => "修改密码" },
+							)
+						: null,
+					state.showPassword
+						? h(NewbiePassword, {
+								modelValue: submitForm.password,
+								placeholder: "请输入密码",
+								style: { width: "200px" },
+								onChange(e) {
+									submitForm.password = e.target.value
+								},
+							})
+						: null,
+				])
+			}
+			// 直接显示密码输入框
+			return h(NewbiePassword, {
+				modelValue: submitForm.password,
+				placeholder: "请输入密码",
+				style: { width: "200px" },
+				onChange(e) {
+					submitForm.password = e.target.value
 				},
-			},
-			help: "可后续在账号管理中进行修改，可多选",
+			})
 		},
-		{
-			key: "roles",
-			title: "用户角色",
-			type: "select",
-			width: 200,
-			options: state.roleOptions,
-			defaultProps: {
-				mode: "multiple",
-			},
-			help: "可后续在账号管理中进行修改，可多选",
-		},
-		{
-			key: "password",
-			title: "用户密码",
-			message: "请填写密码",
-			customRender: ({ submitForm }) => {
-				if (submitForm.id) {
-					// 显示一个按钮，点击后显示密码输入框
-					return h("div", {}, [
-						!state.showPassword
-							? h(
-									Button,
-									{
-										type: "primary",
-										onClick() {
-											state.showPassword = true
-										},
-									},
-									{ default: () => "修改密码" },
-							  )
-							: null,
-						state.showPassword
-							? h(NewbiePassword, {
-									modelValue: submitForm.password,
-									placeholder: "请输入密码",
-									style: { width: "200px" },
-									onChange(e) {
-										submitForm.password = e.target.value
-									},
-							  })
-							: null,
-					])
-				}
-				// 直接显示密码输入框
-				return h(NewbiePassword, {
-					modelValue: submitForm.password,
-					placeholder: "请输入密码",
-					style: { width: "200px" },
-					onChange(e) {
-						submitForm.password = e.target.value
-					},
-				})
+	},
+	{
+		key: "nickname",
+		title: "姓名",
+	},
+	{
+		key: "departments",
+		title: "所属部门",
+		type: "tree-select",
+		width: 300,
+		options: props.departments,
+		defaultProps: {
+			treeDefaultExpandAll: false,
+			treeCheckable: true,
+			treeCheckStrictly: true,
+			showCheckedStrategy: TreeSelect.SHOW_ALL,
+			treeNodeFilterProp: "name",
+			fieldNames: {
+				children: "children",
+				label: "name",
+				value: "id",
 			},
 		},
-		{
-			key: "position",
-			title: "职位",
+		help: "可后续在账号管理中进行修改，可多选",
+		columnIndex: 1,
+	},
+	{
+		key: "work_num",
+		title: "工号",
+	},
+	{
+		key: "position",
+		title: "职位",
+		columnIndex: 1,
+	},
+	{
+		key: "roles",
+		title: "用户角色",
+		type: "select",
+		width: 200,
+		options: state.roleOptions,
+		defaultProps: {
+			mode: "multiple",
 		},
-		{
-			key: "email",
-			title: "电子邮箱",
-		},
-		{
-			key: "is_active",
-			title: "账号状态",
-			type: "switch",
-			options: ["正常", "禁用"],
-			defaultValue: true,
-		},
-	]
-}
+		help: "可后续在账号管理中进行修改，可多选",
+	},
+	{
+		key: "work_phone",
+		title: "办公室电话",
+		columnIndex: 1,
+	},
+	{
+		key: "phone",
+		required: true,
+		title: "手机号码",
+		rules: [{ required: true, message: "请填写正确的手机号码", pattern: /^1[3456789]\d{9}$/ }],
+	},
+	{
+		key: "email",
+		title: "电子邮箱",
+		columnIndex: 1,
+	},
+]
 
 const onEdit = (id) => {
 	state.url = id ? route("api.manager.user.item", { id }) : ""
@@ -400,7 +447,7 @@ const onEdit = (id) => {
 
 const closeEditor = (isRefresh) => {
 	if (isRefresh) {
-		list.value?.doFetch()
+		tableRef.value?.doFetch()
 	}
 	state.showUserEditor = false
 }
@@ -414,7 +461,7 @@ const onDelete = (item) => {
 				modal.destroy()
 				useProcessStatusSuccess(res, () => {
 					message.success("删除成功")
-					list.value.doFetch()
+					tableRef.value.doFetch()
 				})
 			} catch (e) {
 				modal.destroy(e)
@@ -426,7 +473,8 @@ const onDelete = (item) => {
 
 const onBeforeSubmit = ({ formatForm }) => {
 	if (formatForm.password) {
-		formatForm.password = useSm3(formatForm.password)
+		const sm2 = useSm2()
+		formatForm.password = sm2.doEncrypt(formatForm.password, props.sm2PublicKey)
 	}
 	formatForm.departments = formatForm.departments.map((item) => item.value)
 	return formatForm
@@ -442,155 +490,174 @@ const onAfterFetch = (res) => {
 /**
  * @return {Array.<TableColunmConfig>}
  */
-const columns = () => {
-	return [
-		{
-			title: "姓名",
-			dataIndex: "name",
-			filterable: true,
-			width: 100,
+const tableColumns = () => [
+	{
+		title: "用户名",
+		dataIndex: "name",
+		filterable: true,
+		width: 100,
+	},
+	{
+		title: "姓名",
+		dataIndex: "nickname",
+		width: 140,
+		filterable: {
+			defaultCondition: "include",
 		},
-		{
-			title: "工号",
-			dataIndex: "work_num",
-			filterable: true,
-			width: 100,
+	},
+	{
+		title: "工号",
+		dataIndex: "work_num",
+		filterable: true,
+		width: 100,
+	},
+	{
+		title: "账号状态",
+		key: "is_active",
+		width: 80,
+		align: "center",
+		customRender({ record }) {
+			return useTableActions({
+				type: "tag",
+				name: record.is_active ? "正常" : "禁用",
+				props: { color: record.is_active ? "green" : "red" },
+			})
 		},
-		{
-			title: "手机号码",
-			dataIndex: "phone",
-			filterable: true,
-			width: 130,
+		filterable: {
+			type: "switch",
+			options: ["正常", "禁用"],
 		},
-		{
-			title: "电子邮箱",
-			dataIndex: "email",
-			filterable: true,
-			ellipsis: true,
-			width: 130,
-		},
-		{
-			title: "用户角色",
-			key: "roles",
-			width: 140,
-			customRender({ record }) {
-				return h(
-					"div",
-					{},
-					record.roles.length
-						? record.roles.map((item) => h(Tag, { color: "blue" }, { default: () => item.name }))
-						: h(Tag, {}, { default: () => "未分配" }),
-				)
-			},
-			filterable: {
-				key: "role_id",
-				type: "select",
-				options: [{ label: "未分配", value: -1 }, ...state.roleOptions],
-				conditions: ["equal"],
-				expandable: true,
-			},
-		},
-		{
-			title: "所属部门",
-			key: "departments",
-			width: 140,
-			customRender({ record }) {
-				return h(
-					"div",
-					{},
-					record.departments.length
-						? record.departments.map((item) => h(Tag, { color: "cyan" }, { default: () => item.name }))
-						: h(Tag, {}, { default: () => "未分配" }),
-				)
-			},
-		},
-		{
-			title: "职位",
-			key: "position",
-			width: 100,
-			customRender({ record }) {
-				return record.position ? h(Tag, { color: "orange" }, () => record.position) : null
-			},
-		},
-		{
-			title: "账号状态",
-			key: "is_active",
-			width: 80,
-			align: "center",
-			customRender({ record }) {
-				return useTableActions({
-					type: "tag",
-					name: record.is_active ? "正常" : "禁用",
-					props: { color: record.is_active ? "green" : "red" },
-				})
-			},
-		},
-		{
-			title: "上次登录时间",
-			key: "last_login_at",
-			width: 140,
-			customRender({ record }) {
-				return h("span", {}, useDateFormat(record.last_login_at))
-			},
-		},
-		{
-			title: "上次登录IP",
-			dataIndex: "last_login_ip",
-			width: 140,
-			ellipsis: true,
-		},
-		{
-			title: "操作",
-			width: 260,
-			key: "operation",
-			align: "center",
-			fixed: "right",
-			customRender({ record }) {
-				const actions = []
+	},
+	{
+		title: "手机号码",
+		dataIndex: "phone",
+		filterable: true,
+		width: 130,
+	},
 
-				if (auth("api.manager.user.edit")) {
-					actions.push({
-						name: "编辑",
-						props: {
-							icon: h(EditOutlined),
-							size: "small",
-						},
-						action() {
-							onEdit(record.id)
-						},
-					})
-				}
+	{
+		title: "用户角色",
+		key: "roles",
+		width: 140,
+		customRender({ record }) {
+			return h(
+				"div",
+				{},
+				record.roles.length
+					? record.roles.map((item) => h(Tag, { color: "blue" }, { default: () => item.name }))
+					: h(Tag, {}, { default: () => "未分配" }),
+			)
+		},
+		filterable: {
+			key: "role_id",
+			type: "select",
+			options: [{ label: "未分配", value: -1 }, ...state.roleOptions],
+			conditions: ["equal"],
+			expandable: true,
+		},
+	},
+	{
+		title: "所属部门",
+		key: "departments",
+		width: 140,
+		customRender({ record }) {
+			return h(
+				"div",
+				{},
+				record.departments.length
+					? record.departments.map((item) => h(Tag, { color: "cyan" }, { default: () => item.name }))
+					: h(Tag, {}, { default: () => "未分配" }),
+			)
+		},
+	},
+	{
+		title: "职位",
+		dataIndex: "position",
+		width: 120,
+		ellipsis: true,
+	},
+	{
+		title: "办公室电话",
+		dataIndex: "work_phone",
+		filterable: true,
+		width: 130,
+	},
+	{
+		title: "电子邮箱",
+		dataIndex: "email",
+		filterable: true,
+		ellipsis: true,
+		width: 130,
+	},
 
+	{
+		title: "最近登录时间",
+		key: "last_login_at",
+		width: 180,
+		customRender({ record }) {
+			return useDateFormat(record.last_login_at)
+		},
+		filterable: {
+			type: "date",
+		},
+	},
+	{
+		title: "最近登录IP",
+		dataIndex: "last_login_ip",
+		width: 140,
+		ellipsis: true,
+	},
+	{
+		title: "操作",
+		width: 260,
+		key: "operation",
+		align: "center",
+		fixed: "right",
+		customRender({ record }) {
+			const actions = []
+
+			if (auth("api.manager.user.edit")) {
 				actions.push({
-					name: "独立权限",
+					name: "编辑",
 					props: {
-						icon: h(AuditOutlined),
+						icon: h(EditOutlined),
 						size: "small",
 					},
 					action() {
-						state.currentItem = record
-						nextTick(() => {
-							permissionAuthorizationRef.value?.open()
-						})
+						onEdit(record.id)
 					},
 				})
+			}
 
-				if (auth("api.manager.user.delete")) {
-					actions.push({
-						name: "删除",
-						props: {
-							icon: h(DeleteOutlined),
-							size: "small",
-						},
-						action() {
-							onDelete(record)
-						},
+			actions.push({
+				name: "独立权限",
+				props: {
+					icon: h(AuditOutlined),
+					size: "small",
+				},
+				action() {
+					state.currentItem = record
+					nextTick(() => {
+						permissionAuthorizationRef.value?.open()
 					})
-				}
+				},
+			})
 
-				return useTableActions(actions)
-			},
+			if (auth("api.manager.user.delete")) {
+				actions.push({
+					name: "删除",
+					props: {
+						icon: h(DeleteOutlined),
+						size: "small",
+					},
+					action() {
+						onDelete(record)
+					},
+				})
+			}
+
+			return useTableActions(actions)
 		},
-	]
-}
+	},
+]
 </script>

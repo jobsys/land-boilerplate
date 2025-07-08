@@ -1,0 +1,79 @@
+<?php
+
+namespace App\Http\Controllers\Manager\Cgi;
+
+
+use App\Models\User;
+use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Log;
+use Modules\Starter\Entities\SnsUser;
+use Modules\Wechat\Enums\WechatSns;
+use Modules\Wechat\Services\WechatService;
+use Modules\Wechat\Services\WorkVendorService;
+
+class WechatWorkCgiController extends Controller
+{
+
+	protected WechatService $service;
+
+	public function __construct(WechatService $service)
+	{
+		$this->service = $service;
+	}
+
+	public function login()
+	{
+		Log::info('wechat work login.');
+
+		/**
+		 * @var \Overtrue\Socialite\User $user
+		 */
+		list($user, $error) = $this->service->workUser();
+
+		if ($error) {
+			return response()->redirectTo(route('page.mobile.manager.error', ['message' => '获取企业微信授权信息失败']));
+		}
+		$open_id = $user->getId();
+
+		Log::info('work manager id: ', [$open_id]);
+
+		if (!$open_id) {
+			return response()->redirectTo(route('page.mobile.manager.error', ['message' => '企业微信用户ID为空']));
+		}
+		$sns_user = SnsUser::with(['snsable'])
+			->where('snsable_type', User::class)
+			->where('sns_id', $open_id)->where('type', WechatSns::Work)->first();
+		if (!$sns_user) {
+			$sns_user = SnsUser::create([
+				'type' => WechatSns::Work,
+				'sns_id' => $open_id,
+				'snsable_type' => User::class
+			]);
+		}
+
+
+		if (!$sns_user->snsable) {
+			$system_number = land_customer_func(WorkVendorService::class, 'morphGetSystemNumberByOpenId', ['open_id' => $open_id]);
+
+			$user = User::where('work_num', $system_number)->first(['id', 'work_num', 'nickname']);
+
+			if (!$user) {
+				return response()->redirectTo(route('page.mobile.manager.error', ['message' => "企业用户未绑定，请联系管理员"]));
+			}
+			$sns_user->update([
+				'snsable_id' => $user->id,
+				'bound_at' => now(),
+			]);
+			session(['sns_user' => $sns_user]);
+			auth()->login($user);
+			Log::info("User bind work  success:", [$user->work_num, $user->nickname]);
+		} else if ($sns_user->is_auto_login) {
+			session(['sns_user' => $sns_user]);
+			auth()->login($sns_user->snsable);
+			Log::info("User auto login work success:", [$sns_user->snsable?->work_num, $sns_user->snsable?->nickname]);
+		}
+
+		return response()->redirectTo(session('intend_url', route('page.mobile.manager.index')));
+	}
+
+}

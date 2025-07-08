@@ -7,18 +7,18 @@ import { useIntervalFn } from "@vueuse/core"
 const useNotificationStore = defineStore("notification", () => {
 	const notificationTabs = ref([
 		{
-			key: "all",
-			title: "全部消息",
-			unread: 0,
-		},
-		{
 			key: "todo",
-			title: "待办事件",
+			title: "待办消息",
 			unread: 0,
 		},
 		{
 			key: "notification",
 			title: "消息通知",
+			unread: 0,
+		},
+		{
+			key: "all",
+			title: "全部消息",
 			unread: 0,
 		},
 	])
@@ -44,13 +44,6 @@ const useNotificationStore = defineStore("notification", () => {
 	}
 
 	const notificationMap = ref({
-		all: {
-			pagination: {},
-			initPagination(data) {
-				notificationMap.value.all.pagination = data
-			},
-		},
-
 		notification: {
 			pagination: {},
 			initPagination(data) {
@@ -62,6 +55,12 @@ const useNotificationStore = defineStore("notification", () => {
 			pagination: {},
 			initPagination(data) {
 				notificationMap.value.todo.pagination = data
+			},
+		},
+		all: {
+			pagination: {},
+			initPagination(data) {
+				notificationMap.value.all.pagination = data
 			},
 		},
 	})
@@ -76,13 +75,9 @@ const useNotificationStore = defineStore("notification", () => {
 		return "all"
 	}
 
-	const findItemInType = (item, type) => {
-		return find(notificationMap.value[type].pagination.items, (it) => it.id === item.id)
-	}
+	const findItemInType = (item, type) => find(notificationMap.value[type].pagination.items, (it) => it.id === item.id)
 
-	const findItemIndexInType = (item, type) => {
-		return findIndex(notificationMap.value[type].pagination.items, (it) => it.id === item.id)
-	}
+	const findItemIndexInType = (item, type) => findIndex(notificationMap.value[type].pagination.items, (it) => it.id === item.id)
 
 	const read = async (item, type) => {
 		if (type === "all") {
@@ -171,10 +166,10 @@ const useNotificationStore = defineStore("notification", () => {
 	if (!isIntervalIsActive.value) {
 		isIntervalIsActive.value = true
 		useIntervalFn(async () => {
-			if (!isFetching.value) {
+			if (window.landAppInit?.env !== "local" && !isFetching.value && window.isLogin) {
 				await fetchBrief()
 			}
-		}, 5000)
+		}, 60000)
 	}
 	return { notificationMap, notificationTabs, totalUnread, read, readAll, deleteItem, deleteAll, setBriefUrl }
 })

@@ -31,14 +31,27 @@ if (!function_exists('land_excel_date')) {
 	/**
 	 * Excel 日期转换
 	 * @param $value
+	 * @param string $type
 	 * @return Carbon|null
 	 */
-	function land_excel_date($value): ?Carbon
+	function land_excel_date($value, string $type = 'date'): ?Carbon
 	{
 		if (!$value) {
 			return null;
 		}
-		return Carbon::instance(Date::excelToDateTimeObject($value));
+
+		try {
+			if (is_numeric($value)) {
+				return Carbon::instance(Date::excelToDateTimeObject($value));
+			}
+			if (is_string($value)) {
+				return land_predict_date_time($value, $type);
+			}
+		} catch (\Exception $e) {
+			return null;
+		}
+
+		return null;
 	}
 }
 
@@ -67,6 +80,6 @@ if (!function_exists('land_add_file_suffix')) {
 	function land_add_file_suffix(string|null $filename, string $suffix = '_thumb'): string
 	{
 		$path_info = pathinfo($filename);
-		return $path_info['dirname'] . DIRECTORY_SEPARATOR . $path_info['filename'] . $suffix . '.' . $path_info['extension'];
+		return $path_info['dirname'] . DIRECTORY_SEPARATOR . $path_info['filename'] . $suffix . '.' . ($path_info['extension'] ?? '');
 	}
 }

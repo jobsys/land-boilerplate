@@ -76,53 +76,52 @@ if (!function_exists('land_filterable')) {
 		switch ($query['type']) {
 			case "input":
 				$builder = match ($query['condition']) {
-					'equal' => $builder->where($column, $query['value']),
-					'notEqual' => $builder->where(function ($q) use ($column, $query) {
+					'equal', 'e', '=' => $builder->where($column, $query['value']),
+					'notEqual', 'ne', '!', '!=', '<>' => $builder->where(function ($q) use ($column, $query) {
 						return $q->whereNull($column)->orWhere($column, '<>', $query['value']);
 					}),
-					'include' => $builder->where($column, 'like', "%{$query['value']}%"),
-					'exclude' => $builder->where(function ($q) use ($column, $query) {
+					'include', 'in' => $builder->where($column, 'like', "%{$query['value']}%"),
+					'exclude', 'ex' => $builder->where(function ($q) use ($column, $query) {
 						return $q->whereNull($column)->orWhere($column, 'not like', "%{$query['value']}%");
 					}),
-					'null' => $builder->where(function ($q) use ($column, $query) {
+					'null', 'n' => $builder->where(function ($q) use ($column, $query) {
 						return $q->whereNull($column)->orWhere($column, '');
 					}),
-					'notNull' => $builder->where(function ($q) use ($column) {
+					'notNull', 'nn' => $builder->where(function ($q) use ($column) {
 						return $q->whereNotNull($column)->where($column, '<>', '');
 					})
 				};
 				break;
 			case "select":
 				$builder = match ($query['condition']) {
-					'equal' => $builder->where($column, $query['value']),
-					'notEqual' => $builder->where(function ($q) use ($column, $query) {
+					'equal', 'e', '=' => $builder->where($column, $query['value']),
+					'notEqual', 'ne', '!', '!=', '<>' => $builder->where(function ($q) use ($column, $query) {
 						return $q->whereNull($column)->orWhere($column, '<>', $query['value']);
 					}),
-					'include' => $builder->where(function ($q) use ($column, $query) {
+					'include', 'in' => $builder->where(function ($q) use ($column, $query) {
 						//如果只有一个值，就使用like, 用于支持数组类型的数据
 						if (count($query['value']) === 1) {
 							return $q->whereIn($column, $query['value'])->orWhere($column, 'like', '%' . $query['value'][0] . '%');
 						}
 						return $q->whereIn($column, $query['value']);
 					}),
-					'exclude' => $builder->where(function ($q) use ($column, $query) {
+					'exclude', 'ex' => $builder->where(function ($q) use ($column, $query) {
 						return $q->whereNull($column)->orWhereNotIn($column, $query['value']);
 					}),
 				};
 				break;
 			case "number":
 				$builder = match ($query['condition']) {
-					'equal' => $builder->where($column, $query['value']),
-					'notEqual' => $builder->where(function ($q) use ($column, $query) {
+					'equal', 'e', '=' => $builder->where($column, $query['value']),
+					'notEqual', 'ne', '!', '!=', '<>' => $builder->where(function ($q) use ($column, $query) {
 						return $q->whereNull($column)->orWhere($column, '<>', $query['value']);
 					}),
-					'lessThan' => $builder->where($column, '<', $query['value']),
-					'greaterThan' => $builder->where($column, '>', $query['value']),
-					'between' => $builder->whereBetween($column, $query['value']),
+					'lessThan', 'lt', '<' => $builder->where($column, '<', $query['value']),
+					'greaterThan', 'gt', '>' => $builder->where($column, '>', $query['value']),
+					'between', 'bt' => $builder->whereBetween($column, $query['value']),
 				};
 				break;
-			case "date":
-
+			case "datetime":
 				$query['value'] = is_array($query['value'])
 					? collect($query['value'])->map(function ($v, $index) {
 						if ($index === 0) {
@@ -138,16 +137,22 @@ if (!function_exists('land_filterable')) {
 					: land_predict_date_time($query['value'], 'date');
 
 				$builder = match ($query['condition']) {
-					'equal' => $builder->whereDate($column, $query['value']),
-					'lessThan' => $builder->whereDate($column, '<', $query['value']),
-					'greaterThan' => $builder->whereDate($column, '>', $query['value']),
-					'between' => $builder->whereBetween($column, CarbonPeriod::between($query['value'][0], $query['value'][1]))
+					'equal', 'e', '=' => $builder->whereDate($column, $query['value']),
+					'lessThan', 'lt', '<' => $builder->whereDate($column, '<', $query['value']),
+					'greaterThan', 'gt', '>', => $builder->whereDate($column, '>', $query['value']),
+					'between', 'bt' => $builder->whereBetween($column, CarbonPeriod::between($query['value'][0], $query['value'][1])),
+					'null', 'n' => $builder->where(function ($q) use ($column, $query) {
+						return $q->whereNull($column)->orWhere($column, '');
+					}),
+					'notNull', 'nn' => $builder->where(function ($q) use ($column) {
+						return $q->whereNotNull($column)->where($column, '<>', '');
+					})
 				};
 				break;
 			case "textarea":
 				$builder = match ($query['condition']) {
-					'equal' => $builder->whereIn($column, $query['value']),
-					'exclude' => $builder->where(function ($q) use ($column, $query) {
+					'equal', 'e', '=' => $builder->whereIn($column, $query['value']),
+					'exclude', 'ex' => $builder->where(function ($q) use ($column, $query) {
 						return $q->whereNull($column)->orWhereNotIn($column, $query['value']);
 					}),
 				};
@@ -157,11 +162,17 @@ if (!function_exists('land_filterable')) {
 					$query['value'] = is_array($query['value']) ? end($query['value']) : $query['value'];
 				}
 				$builder = match ($query['condition']) {
-					'equal' => $builder->where($column, $query['value']),
-					'notEqual' => $builder->where(function ($q) use ($column, $query) {
+					'equal', 'e', '=' => $builder->where($column, $query['value']),
+					'notEqual', 'ne', '!', '!=', '<>' => $builder->where(function ($q) use ($column, $query) {
 						return $q->whereNull($column)->orWhere($column, '<>', $query['value']);
 					}),
-					'include' => $builder->whereIn($column, $query['value']),
+					'include', 'in' => $builder->whereIn($column, $query['value']),
+				};
+				break;
+			case "boolean":
+				$value = in_array($query['value'], ['false', false, 0, '0']) ? 0 : 1;
+				$builder = match ($query['condition']) {
+					'equal', 'e', '=' => $builder->where($column, $value),
 				};
 				break;
 			default:

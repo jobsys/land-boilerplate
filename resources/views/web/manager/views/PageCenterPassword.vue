@@ -1,5 +1,7 @@
 <template>
 	<a-card title="修改密码">
+		<a-alert v-if="tip" :message="tip" type="error" class="mb-4!"></a-alert>
+
 		<a-form :model="form" :label-col="{ span: 4 }" class="w-[460px] mx-auto" @finish="onSubmit">
 			<a-form-item label="原密码" required name="old_password" :rules="[{ required: true, message: '请输入原密码' }]">
 				<a-input-password v-model:value="form.old_password" />
@@ -22,17 +24,22 @@
 			</a-form-item>
 
 			<a-form-item :wrapper-col="{ offset: 4 }">
-				<NewbieButton :fetcher="fetcher" :button-props="{ htmlType: 'submit' }" type="primary">修改</NewbieButton>
+				<NewbieButton :fetcher="fetcher" :button-props="{ htmlType: 'submit' }" type="primary">修改 </NewbieButton>
 			</a-form-item>
 		</a-form>
 	</a-card>
 </template>
 <script setup>
 import { inject, reactive, ref } from "vue"
-import { useSm3 } from "jobsys-newbie/hooks"
+import { useSm2 } from "jobsys-newbie/hooks"
 import { useFetch, useProcessStatusSuccess } from "jobsys-newbie/hooks"
 import { message } from "ant-design-vue"
 import { cloneDeep } from "lodash-es"
+
+const props = defineProps({
+	tip: { type: String, default: "" },
+	sm2PublicKey: { type: String, default: "" },
+})
 
 const route = inject("route")
 
@@ -71,8 +78,9 @@ const onBeforeSubmit = ({ formatForm }) => {
 		return false
 	}
 	delete formatForm.confirm_password
-	formatForm.password = useSm3(formatForm.password)
-	formatForm.old_password = useSm3(formatForm.old_password)
+	const sm2 = useSm2()
+	formatForm.password = sm2.doEncrypt(formatForm.password, props.sm2PublicKey)
+	formatForm.old_password = sm2.doEncrypt(formatForm.old_password, props.sm2PublicKey)
 
 	return formatForm
 }

@@ -29,11 +29,20 @@ class ToolController extends BaseManagerController
 	 */
 	public function upload(Request $request)
 	{
+
+		if (config('conf.disabled_upload')) {
+			return $this->message('上传功能暂未开启');
+		}
+
 		// check if the upload is success, throw exception or return response you need
 		$receiver = new FileReceiver('file', $request, HandlerFactory::classFromRequest($request));
 
 		// receive the file
 		$save = $receiver->receive();
+
+		if (!$save) {
+			return $this->message('上传失败， 请重新上传');
+		}
 
 		// check if the upload has finished (in chunk mode it will send smaller files)
 		if ($save->isFinished()) {
@@ -43,6 +52,22 @@ class ToolController extends BaseManagerController
 			$mime = $file->getMimeType();
 			$date_folder = date('Ymd');
 
+			// 添加文件格式检查
+			$allowed_mimes = [
+				'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/heic',
+				'video/mp4', 'video/mpeg', 'video/quicktime',
+				'application/pdf',
+				'application/msword',
+				'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+				'application/vnd.ms-excel',
+				'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+				'application/zip',
+				'application/x-rar-compressed'
+			];
+
+			if (!in_array($mime, $allowed_mimes)) {
+				return $this->message('不支持的文件格式，请重新上传');
+			}
 
 			$with_thumb = Str::startsWith($mime, 'image/') && $mime !== 'image/heic';
 			$is_private = $request->input('_disk', false) === 'private';

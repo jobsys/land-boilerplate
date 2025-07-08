@@ -12,7 +12,7 @@ class DictDefaultSeeder extends Seeder
 {
 
 	/**
-	 * php artisan migrate --seed --seeder=Database\Seeders\DictSeeder
+	 * php artisan db:seed --class="Database\Seeders\DictDefaultSeeder"
 	 */
 
 

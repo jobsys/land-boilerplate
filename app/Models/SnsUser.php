@@ -9,13 +9,13 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 class SnsUser extends Model
 {
 
-	protected $casts = [
-		'bound_at' => 'datetime'
-	];
+    protected $casts = [
+        'bound_at' => 'datetime'
+    ];
 
 
-	public function snsable(): MorphTo
-	{
-		return $this->morphTo();
-	}
+    public function snsable(): MorphTo
+    {
+        return $this->morphTo();
+    }
 }

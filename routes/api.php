@@ -19,19 +19,20 @@ Route::prefix("manager")->name("api.manager.")->group(function () {
 
 	Route::post('/configuration', [\App\Http\Controllers\Manager\ConfigurationController::class, 'edit'])->name('configuration.edit');
 
-    Route::post('/center/profile', [\App\Http\Controllers\Manager\IndexController::class, 'centerProfileEdit'])->name('center.profile.edit');
-    Route::post('/center/password', [\App\Http\Controllers\Manager\IndexController::class, 'centerPasswordEdit'])->name('center.password.edit');
+	Route::post('/center/profile', [\App\Http\Controllers\Manager\IndexController::class, 'centerProfileEdit'])->name('center.profile.edit');
+	Route::post('/center/password', [\App\Http\Controllers\Manager\IndexController::class, 'centerPasswordEdit'])->name('center.password.edit');
+	Route::post('/center/configuration', [\App\Http\Controllers\Manager\IndexController::class, 'personalConfiguration'])->name('center.personal-configuration');
 
-    Route::post('/department', [\App\Http\Controllers\Manager\DepartmentController::class, 'edit'])->name('department.edit');
-    Route::get('/department', [\App\Http\Controllers\Manager\DepartmentController::class, 'items'])->name('department.items');
-    Route::get('/department/{id}', [\App\Http\Controllers\Manager\DepartmentController::class, 'item'])->where('id', '[0-9]+')->name('department.item');
-    Route::post('/department/delete', [\App\Http\Controllers\Manager\DepartmentController::class, 'delete'])->name('department.delete');
+	Route::post('/department', [\App\Http\Controllers\Manager\DepartmentController::class, 'edit'])->name('department.edit');
+	Route::get('/department', [\App\Http\Controllers\Manager\DepartmentController::class, 'items'])->name('department.items');
+	Route::get('/department/{id}', [\App\Http\Controllers\Manager\DepartmentController::class, 'item'])->where('id', '[0-9]+')->name('department.item');
+	Route::post('/department/delete', [\App\Http\Controllers\Manager\DepartmentController::class, 'delete'])->name('department.delete');
 
-    Route::post('/user', [\App\Http\Controllers\Manager\UserController::class, 'edit'])->name('user.edit');
-    Route::get('/user', [\App\Http\Controllers\Manager\UserController::class, 'items'])->name('user.items');
-    Route::get('/user/{id}', [\App\Http\Controllers\Manager\UserController::class, 'item'])->where('id', '[0-9]+')->name('user.item');
-    Route::post('/user/delete', [\App\Http\Controllers\Manager\UserController::class, 'delete'])->name('user.delete');
-    Route::post('/user/department', [\App\Http\Controllers\Manager\UserController::class, 'department'])->name('user.department');
+	Route::post('/user', [\App\Http\Controllers\Manager\UserController::class, 'edit'])->name('user.edit');
+	Route::get('/user', [\App\Http\Controllers\Manager\UserController::class, 'items'])->name('user.items');
+	Route::get('/user/{id}', [\App\Http\Controllers\Manager\UserController::class, 'item'])->where('id', '[0-9]+')->name('user.item');
+	Route::post('/user/delete', [\App\Http\Controllers\Manager\UserController::class, 'delete'])->name('user.delete');
+	Route::post('/user/department', [\App\Http\Controllers\Manager\UserController::class, 'department'])->name('user.department');
 	Route::post('/user/import', [\App\Http\Controllers\Manager\UserController::class, 'import'])->name('user.import');
 
 });

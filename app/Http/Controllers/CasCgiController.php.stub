@@ -1,0 +1,40 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Student;
+use App\Services\CasService;
+use Modules\Starter\Http\Controllers\BaseController;
+
+/**
+ * Add `"subfission/cas": "^4.0"` to composer.json
+ */
+class CasCgiController extends BaseController
+{
+	public function login()
+	{
+		if (!cas()->isAuthenticated()) {
+			cas()->authenticate();
+		}
+
+		if (cas()->isAuthenticated()) {
+			$identifier = cas()->user();
+
+			list($auth, $error) = land_customer_func(CasService::class, 'morphValidateLogin', ['identifier' => $identifier]);
+
+			if ($error) {
+				return response($error);
+			}
+
+			if ($auth) {
+				if ($auth instanceof Student) {
+					log_access('学生登录', $auth);
+					return response()->redirectTo(route('page.student.dashboard'));
+				}
+				log_access('用户登录', $auth);
+				return response()->redirectTo(route('page.manager.dashboard'));
+			}
+
+		}
+	}
+}

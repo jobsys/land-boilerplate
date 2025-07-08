@@ -1,0 +1,60 @@
+<?php
+
+namespace App\Services;
+
+
+use App\Models\Student;
+use App\Models\User;
+use Illuminate\Support\Carbon;
+use Modules\Starter\Services\BaseService;
+
+class CasService extends BaseService
+{
+	/**
+	 * CAS 登录处理
+	 * @param $identifier
+	 * @return array
+	 */
+	public function morphValidateLogin($identifier): array
+	{
+		$user = User::where('work_num', $identifier)->first();
+		if ($user) {
+			$user->login_error_count = 0;
+			$user->last_login_error_at = null;
+			$user->last_login_at = Carbon::now();
+			$user->last_login_ip = land_request_ip();
+			$user->save();
+
+			if (!$user->roles()->count()) {
+				return [null, '该账号无后台权限，请联系管理员'];
+			}
+			auth()->login($user);
+			return [$user, null];
+		} else {
+			$student = Student::where('student_number', $identifier)->first(['id']);
+
+			if ($student) {
+				$student->login_error_count = 0;
+				$student->last_login_error_at = null;
+				$student->last_login_at = Carbon::now();
+				$student->last_login_ip = land_request_ip();
+				$student->save();
+				auth('student')->login($student);
+				return [$student, null];
+			}
+		}
+
+		cas()->logout(config('app.url'));
+
+		return [null, "用户: $identifier 信息不全，请联系管理员"];
+
+	}
+
+
+	public static function logout(): void
+	{
+		if (cas()->isAuthenticated()) {
+			cas()->logout(config('app.url'));
+		}
+	}
+}

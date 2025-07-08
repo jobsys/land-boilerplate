@@ -17,13 +17,13 @@ export default {
 				return response && response.data
 			},
 			(error) => {
-				if (error.response.status === 401) {
+				if (error.response?.status === 401) {
 					Modal.error({
 						title: "消息提醒",
 						content: "登录状态已失效，请重新登录",
 					})
 					router.visit("/login")
-				} else if (error.response.status === 403) {
+				} else if (error.response?.status === 403) {
 					Modal.error({
 						title: "消息提醒",
 						content: "您没有权限访问该页面",
@@ -31,7 +31,7 @@ export default {
 				} else if (!options.disabledError) {
 					Modal.error({
 						title: "网络出错",
-						content: error.response && error.response.status,
+						content: error.response?.status,
 					})
 				}
 

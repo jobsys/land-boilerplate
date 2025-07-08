@@ -6,6 +6,8 @@
 		:pagination="false"
 		:filterable="false"
 		:after-fetched="onAfterFetched"
+		class="hover-card"
+		:table-props="{ size: 'small' }"
 	>
 		<template #functional>
 			<NewbieButton v-if="$auth('api.manager.department.edit')" type="primary" :icon="h(PlusOutlined)" @click="onEdit(false)"
@@ -56,7 +58,7 @@ const onAfterFetched = (res) => {
 				? item.children.map((child) => {
 						child.key = child.id
 						return child
-				  })
+					})
 				: null
 
 			return item
@@ -64,54 +66,52 @@ const onAfterFetched = (res) => {
 	}
 }
 
-const getForm = () => {
-	return [
-		{
-			key: "name",
-			title: "部门名称",
-			required: true,
-		},
-		{
-			key: "parent_id",
-			title: "上级部门",
-			type: "tree-select",
-			options: state.options,
-			width: 400,
-			defaultProps: {
-				treeNodeFilterProp: "name",
-				fieldNames: {
-					children: "children",
-					label: "name",
-					value: "id",
-				},
+const getForm = () => [
+	{
+		key: "name",
+		title: "部门名称",
+		required: true,
+	},
+	{
+		key: "parent_id",
+		title: "上级部门",
+		type: "tree-select",
+		options: state.options,
+		width: 400,
+		defaultProps: {
+			treeNodeFilterProp: "name",
+			fieldNames: {
+				children: "children",
+				label: "name",
+				value: "id",
 			},
-			help: "留空代表顶级部门",
 		},
-		{
-			key: "description",
-			title: "部门描述",
-			type: "textarea",
+		help: "留空代表顶级部门",
+	},
+	{
+		key: "description",
+		title: "部门描述",
+		type: "textarea",
+	},
+	{
+		key: "sort_order",
+		title: "排序",
+		type: "number",
+		defaultProps: {
+			min: 0,
 		},
-		{
-			key: "sort_order",
-			title: "排序",
-			type: "number",
-			defaultProps: {
-				min: 0,
-			},
-			position: "right",
-			help: "数字越大越靠前",
-		},
-		{
-			key: "is_active",
-			title: "显示状态",
-			type: "switch",
-			options: ["显示", "隐藏"],
-			defaultValue: true,
-			position: "right",
-		},
-	]
-}
+		position: "right",
+		help: "数字越大越靠前",
+	},
+	{
+		key: "is_active",
+		title: "显示状态",
+		type: "switch",
+		options: ["显示", "隐藏"],
+		defaultValue: true,
+		position: "right",
+	},
+]
 
 const onEdit = (item) => {
 	state.url = item ? route("api.manager.department.item", { id: item.id }) : ""
@@ -144,78 +144,76 @@ const onDelete = (item) => {
 	)
 }
 
-const columns = () => {
-	return [
-		{
-			title: "部门名称",
-			width: 200,
-			dataIndex: "name",
-			key: "name",
+const columns = () => [
+	{
+		title: "部门名称",
+		width: 200,
+		dataIndex: "name",
+		key: "name",
+	},
+	{
+		title: "部门描述",
+		width: 200,
+		dataIndex: "description",
+		key: "description",
+	},
+	{
+		title: "排序",
+		width: 50,
+		dataIndex: "sort_order",
+		key: "sort_order",
+	},
+	{
+		title: "显示状态",
+		key: "is_active",
+		width: 80,
+		customRender({ record }) {
+			return useTableActions({
+				type: "tag",
+				props: {
+					color: record.is_active ? "green" : "red",
+				},
+				name: record.is_active ? "显示" : "隐藏",
+			})
 		},
-		{
-			title: "部门描述",
-			width: 200,
-			dataIndex: "description",
-			key: "description",
-		},
-		{
-			title: "排序",
-			width: 50,
-			dataIndex: "sort_order",
-			key: "sort_order",
-		},
-		{
-			title: "显示状态",
-			key: "is_active",
-			width: 80,
-			customRender({ record }) {
-				return useTableActions({
-					type: "tag",
+	},
+	{
+		title: "操作",
+		width: 160,
+		key: "operation",
+		align: "center",
+		fixed: "right",
+		customRender({ record }) {
+			const actions = []
+
+			if (auth("api.manager.department.edit")) {
+				actions.push({
+					name: "编辑",
 					props: {
-						color: record.is_active ? "green" : "red",
+						icon: h(EditOutlined),
+						size: "small",
 					},
-					name: record.is_active ? "显示" : "隐藏",
+					action() {
+						onEdit(record)
+					},
 				})
-			},
+			}
+
+			if (auth("api.manager.department.delete")) {
+				actions.push({
+					name: "删除",
+					props: {
+						icon: h(DeleteOutlined),
+						size: "small",
+					},
+					action() {
+						onDelete(record)
+					},
+				})
+			}
+
+			return useTableActions(actions)
 		},
-		{
-			title: "操作",
-			width: 160,
-			key: "operation",
-			align: "center",
-			fixed: "right",
-			customRender({ record }) {
-				const actions = []
-
-				if (auth("api.manager.department.edit")) {
-					actions.push({
-						name: "编辑",
-						props: {
-							icon: h(EditOutlined),
-							size: "small",
-						},
-						action() {
-							onEdit(record)
-						},
-					})
-				}
-
-				if (auth("api.manager.department.delete")) {
-					actions.push({
-						name: "删除",
-						props: {
-							icon: h(DeleteOutlined),
-							size: "small",
-						},
-						action() {
-							onDelete(record)
-						},
-					})
-				}
-
-				return useTableActions(actions)
-			},
-		},
-	]
-}
+	},
+]
 </script>

@@ -30,28 +30,34 @@ class UserService extends BaseService
 				return [false, '手机号码已存在'];
 			}
 
-			$unique = land_is_model_unique($attrs, User::class, 'email', false);
+			/*$unique = land_is_model_unique($attrs, User::class, 'email', false);
 
 			if (!$unique) {
 				return [false, '电子邮箱已经存在'];
-			}
+			}*/
 
 			$unique = land_is_model_unique($attrs, User::class, 'work_num', false);
 			if (!$unique) {
 				return [false, '工号已经存在'];
 			}
 
+			$password = isset($attrs['password']) && $attrs['password'] ? land_sm2_decrypt($attrs['password']) : null;
+
+			if (!$password) {
+				unset($attrs['password']);
+			}
 
 			if (!$existing_user) {
 				$attrs['password_salt'] = Str::random(6);
-				$attrs['password'] = land_sm3( $attrs['password'] . $attrs['password_salt']);
+				$attrs['password'] = land_sm3($password . $attrs['password_salt']);
 			} else if (isset($attrs['password']) && $attrs['password']) { //如果传了密码则重新修改密码
 				if (!$existing_user->password_salt) {
 					$attrs['password_salt'] = Str::random(6);
 				}
-				$attrs['password'] = land_sm3($attrs['password'] . $existing_user->password_salt);
+				$attrs['password'] = land_sm3($password . $existing_user->password_salt);
 			}
 			$attrs['last_login_error_at'] = null;
+			$attrs['login_error_count'] = 0;
 
 			$user = User::updateOrCreate(['id' => $attrs['id'] ?? null], $attrs);
 
@@ -89,65 +95,16 @@ class UserService extends BaseService
 
 
 		$user->password = land_sm3($password . $user->password_salt);
+		$user->last_password_modify_at = now();
 
 		$result = $user->save();
 
+		log_access('修改密码', $user);
+
+
+		cache()->forget('security_should_user_modify_password');
+
 		return [$result, null];
 	}
-
-	/*public function importUser($item, $batch_id)
-	{
-		$transferLogic = new TransferLogic(app());
-
-		try {
-
-			if (!isset($item['work_num'])) {
-				$transferLogic->log($batch_id, '无', '工号为空');
-				throw new \Exception();
-			}
-
-			if (!isset($item['name'])) {
-				$transferLogic->log($batch_id, $item['work_num'], '姓名为空');
-				throw new \Exception();
-			}
-
-			if (!isset($item['phone'])) {
-				$transferLogic->log($batch_id, $item['work_num'], '手机号码为空');
-				throw new \Exception();
-			}
-
-			//性别
-			if (isset($item['gender']) && $item['gender'] == '男') {
-				$item['gender'] = 1;
-			} else {
-				$item['gender'] = 2;
-			}
-
-
-			$job = $item['job'] ?? '';
-			unset($item['job']);
-
-			$department = null;
-			if (isset($item['department'])) {
-				$department = Department::where('name', $item['department'])->first();
-
-				if (!$department) {
-					$transferLogic->log($batch_id, $item['work_num'], "部门 {$item['department']} 不存在，请先创建部门");
-					throw new \Exception();
-				}
-
-				unset($item['department']);
-			}
-
-			$user = User::updateOrCreate(['work_num' => $item['work_num']], $item);
-
-			if ($department) {
-				$department->users()->attach($user->id, ['job' => $job, 'role' => Department::DepartmentPosition['MEMBER']]);
-			}
-
-		} catch (\Exception $e) {
-			Log::error(__FUNCTION__ . '::' . $e->getMessage());
-		}
-	}*/
 
 }

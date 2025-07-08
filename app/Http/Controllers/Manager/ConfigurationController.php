@@ -17,6 +17,14 @@ class ConfigurationController extends BaseManagerController
 		]);
 	}
 
+	public function pageConfigurationSecurity()
+	{
+		$configurations = Configuration::where('module', 'system')->where('group', 'security')->get();
+		return Inertia::render('PageConfigurationSecurity', [
+			'configurations' => $configurations
+		]);
+	}
+
 	public function edit()
 	{
 		list($input, $error) = land_form_validate(
@@ -34,11 +42,7 @@ class ConfigurationController extends BaseManagerController
 		}
 
 		foreach ($input['configurations'] as $configuration) {
-			Configuration::updateOrCreate([
-				'module' => $configuration['module'],
-				'group' => $configuration['group'],
-				'name' => $configuration['name'],
-			], $configuration);
+			configuration_save($configuration);
 		}
 
 		log_access("编辑{$input['configurations'][0]['module']}配置项");

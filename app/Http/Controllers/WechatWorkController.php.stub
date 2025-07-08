@@ -1,0 +1,44 @@
+<?php
+
+namespace App\Http\Controllers;
+
+
+use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Log;
+use Modules\Wechat\Services\WechatService;
+
+class WechatWorkController extends Controller
+{
+	protected WechatService $service;
+
+	public function __construct(WechatService $service)
+	{
+		$this->service = $service;
+	}
+
+	public function serve()
+	{
+		Log::info('wechat request arrived.');
+
+		$server = $this->service->workApp()->getServer();
+
+		$server->with(function ($message) {
+			return "欢迎使用 " . config('app.name') . " 企业微信服务";
+		});
+
+		return $server->serve();
+	}
+
+	public function redirect($role)
+	{
+		Log::info("$role : wechat work redirect.");
+
+		$login_url = match ($role) {
+			'manager' => route('wechat.work.manager.login'),
+			default => route('wechat.work.student.login'),
+		};
+
+		$redirect_url = $this->service->workApp()->getOAuth()->redirect($login_url);
+		return response()->redirectTo($redirect_url);
+	}
+}

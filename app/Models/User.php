@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -17,10 +18,11 @@ use Modules\Starter\Traits\Snsable;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Permission\Traits\HasRoles;
+use Staudenmeir\EloquentJsonRelations\HasJsonRelationships;
 
 class User extends Authenticatable
 {
-	use HasDataScopes, Accessable, Authorisations, Filterable, HasApiTokens, HasFactory, HasRoles, MessageReceiver, Notifiable, Paginatable, Snsable, LogsActivity;
+	use HasDataScopes, Accessable, Authorisations, Filterable, HasApiTokens, HasFactory, HasRoles, MessageReceiver, Notifiable, Paginatable, Snsable, LogsActivity, HasJsonRelationships;
 
 	protected $guarded = [];
 
@@ -59,9 +61,20 @@ class User extends Authenticatable
 		'avatar' => 'file'
 	];
 
+	public static function getModelName(): string
+	{
+		return '用户';
+	}
+
+
 	public function departments(): BelongsToMany
 	{
 		return $this->belongsToMany(Department::class);
+	}
+
+	public function configurations(): MorphMany
+	{
+		return $this->morphMany(PersonalConfiguration::class, 'configurable');
 	}
 
 	public function isSuperAdmin(): bool

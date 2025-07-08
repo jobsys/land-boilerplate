@@ -14,7 +14,7 @@ class SetupSeeder extends Seeder
      */
     public function run(): void
     {
-
+		/********初始化角色********/
 
 		//系统管理员
 		$system_admin = Role::where('name', '系统管理员')->first();
@@ -35,16 +35,26 @@ class SetupSeeder extends Seeder
 		}*/
 
 
+		/********初始化部门********/
+
 		//创建系统管理部门
-		if (!Department::find(1)) {
+		if (!Department::find(config('conf.system_department_id'))) {
 			Department::create([
-				"id" => 1,
+				"id" => config('conf.system_department_id'),
 				"parent_id" => null,
-				"creator_id" => 1,
+				"creator_id" => config('conf.super_admin_id'),
 				"principal_id" => 0,
 				"name" => "系统管理部门",
 				"is_active" => true
 			]);
 		}
+
+
+		/********初始化审核流程********/
+
+
+
+		/********初始化业务配置********/
+
 	}
 }

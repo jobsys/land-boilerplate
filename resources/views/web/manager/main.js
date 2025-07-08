@@ -1,25 +1,20 @@
+import "./styles/app.less"
 import { createApp, h } from "vue"
 import { createInertiaApp } from "@inertiajs/vue3"
 import { ZiggyVue } from "@/js/plugins/ziggy"
-import "simplebar-vue/dist/simplebar.min.css"
-import "ant-design-vue/dist/reset.css"
-import "jobsys-newbie/dist/style.css"
-import "./styles/style.less"
 import Newbie from "jobsys-newbie"
 import { auth } from "jobsys-newbie/directives"
 import dayjs from "dayjs"
 import "dayjs/locale/zh-cn"
-import useUserStore from "@manager/stores/user"
 import { createPinia } from "pinia"
 import { http } from "@/js/plugins"
 import NewbieApp from "./NewbieApp.vue"
 import CommonLayout from "./shared/CommonLayout.vue"
 import { useAppConfig } from "./config"
-import { useSystemStore } from "@manager/stores"
+import { useSystemStore, useUserStore } from "@manager/stores"
+import { hiPrintPlugin } from "vue-plugin-hiprint"
 
-//有加入打印模块时解封
-//import { hiPrintPlugin } from "vue-plugin-hiprint"
-//hiPrintPlugin.disAutoConnect()
+hiPrintPlugin.disAutoConnect()
 
 dayjs.locale("zh-cn")
 const pinia = createPinia()
@@ -58,6 +53,7 @@ function resolvePage(pageUri) {
 createInertiaApp({
 	progress: {
 		color: useAppConfig("theme.token.colorPrimary"),
+		showSpinner: true,
 	},
 	title: (title) => `${title}`,
 	resolve: (name) => resolvePage(name),
@@ -65,7 +61,7 @@ createInertiaApp({
 		const app = createApp(h(NewbieApp, {}, () => [h(App, props)]))
 
 		app.use(Newbie).use(plugin).use(http).use(pinia)
-		//.use(hiPrintPlugin, "$pluginName")
+		// .use(hiPrintPlugin, "$pluginName")
 
 		// 先初始化用户信息再挂载App
 		const userStore = useUserStore()
@@ -77,7 +73,6 @@ createInertiaApp({
 
 		app.config.globalProperties.$http.get("api/ziggy/manager").then((routes) => {
 			app.use(ZiggyVue, routes)
-
 			app.mount(el)
 		})
 	},
