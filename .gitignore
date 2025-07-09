@@ -20,3 +20,4 @@ yarn-error.log
 /composer.lock
 /config/dev.php
 .DS_Store
+Modules

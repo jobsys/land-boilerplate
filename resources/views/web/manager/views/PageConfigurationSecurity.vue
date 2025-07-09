@@ -69,7 +69,7 @@ const getData = (group) => {
 const getForm = (group) => {
 	if (group === "security") {
 		return [
-			{
+			/*{
 				title: "学生密码周期",
 				key: "security_student_password_cycle",
 				type: "number",
@@ -92,7 +92,7 @@ const getForm = (group) => {
 					min: 0,
 					addonAfter: "天",
 				},
-			},
+			},*/
 			{
 				title: "自动退出登录",
 				key: "security_auto_logout_time",

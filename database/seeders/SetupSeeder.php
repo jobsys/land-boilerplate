@@ -52,9 +52,43 @@ class SetupSeeder extends Seeder
 
 		/********初始化审核流程********/
 
+		/*$role_map = Role::get()->mapWithKeys(fn($item) => [$item->name => $item->id]);
+
+		if (!ApprovalProcess::where('name', '院校二级审核')->exists()) {
+			$process = ApprovalProcess::create([
+				'name' => '院校二级审核',
+				'creator_id' => config('conf.super_admin_id'),
+				'subsequent_action' => 'invisible',
+				'is_active' => 1,
+				'remark' => '院系管理员 -> 校级管理员 \n系统基础审核流程，可以进行文案更改，非必要勿动审核节点！'
+			]);
+
+			$process->nodes()->create([
+				'name' => '院系管理员',
+				'creator_id' => config('conf.super_admin_id'),
+				'approver_type' => ApproverTypes::DesignatedRole,
+				'approver_id' => $role_map[config('conf.role_college_manager')],
+				'weight' => 0,
+			]);
+			$process->nodes()->create([
+				'name' => '校级管理员',
+				'creator_id' => config('conf.super_admin_id'),
+				'approver_type' => ApproverTypes::DesignatedRole,
+				'approver_id' => $role_map[config('conf.role_school_manager')],
+				'weight' => 0,
+			]);
+		}*/
 
 
 		/********初始化业务配置********/
 
+		/*$configurations = [
+			['module' => 'affair', 'group' => 'supervision', 'name' => 'daily_max_appointment_count', 'display_name' => '督导员每天最多可预约课程数', 'value' => 4, 'lang' => app()->getLocale()]
+		];
+		foreach ($configurations as $configuration) {
+			if (!Configuration::where('module', $configuration['module'])->where('group', $configuration['group'])->where('name', $configuration['name'])->where('lang', $configuration['lang'])->exists()) {
+				Configuration::create($configuration);
+			}
+		}*/
 	}
 }

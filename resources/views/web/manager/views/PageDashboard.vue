@@ -1,6 +1,6 @@
 <template>
-	<div class="m-[-20px] bg-gray-100">
-		<a-page-header class="bg-white rounded mb-4" title="工作台">
+	<div class="bg-gray-100">
+		<a-page-header class="bg-white! mb-4! hover-card" title="工作台">
 			<div class="flex items-center">
 				<div class="w-16 h-16 mr-10">
 					<img class="h-full w-full rounded-full" :src="profile.avatar?.url || DefaultAvatar" />
@@ -27,7 +27,7 @@
 
 		<a-row :gutter="16">
 			<a-col :sm="24" :md="24" :lg="14">
-				<a-card title="进行中的项目">
+				<a-card title="进行中的项目" size="small" class="hover-card">
 					<template #extra>
 						<Link>全部项目</Link>
 					</template>
@@ -39,7 +39,7 @@
 
 				<a-row :gutter="16" class="my-4">
 					<a-col :span="12">
-						<a-card title="新闻公告">
+						<a-card title="新闻公告" size="small" class="hover-card">
 							<template #extra>
 								<Link>查看更多</Link>
 							</template>
@@ -55,52 +55,124 @@
 						</a-card>
 					</a-col>
 					<a-col :span="12">
-						<a-card title="常用功能">
-							<a-button type="text" style="width: 25%; margin-bottom: 10px">操作一</a-button>
-							<a-button type="text" style="width: 25%; margin-bottom: 10px">操作二</a-button>
-							<a-button type="text" style="width: 25%; margin-bottom: 10px">操作三</a-button>
-							<a-button type="text" style="width: 25%; margin-bottom: 10px">操作四</a-button>
-							<a-button type="text" style="width: 25%; margin-bottom: 10px">操作五</a-button>
-							<a-button type="text" style="width: 25%; margin-bottom: 10px">操作六</a-button>
-							<a-button type="text" style="width: 25%; margin-bottom: 10px">操作七</a-button>
-							<a-button type="primary" style="width: 25%; margin-bottom: 10px">
-								<template #icon>
-									<PlusOutlined></PlusOutlined>
-								</template>
-								添加
-							</a-button>
+						<a-card size="small" title="常用功能" class="hover-card">
+							<template #extra>
+								<a-button type="link" :icon="h(EditOutlined)" @click="() => (state.showMenuModal = true)"> 编辑 </a-button>
+							</template>
+							<a-empty v-if="!dailyFunctions?.length" description="暂无常用功能"></a-empty>
+
+							<a-space v-else wrap>
+								<a-button
+									v-for="func in dailyFunctions"
+									:key="func.key"
+									type="default"
+									style="width: 140px"
+									@click="() => router.visit(route(func.key))"
+								>
+									{{ func.title }}
+								</a-button>
+							</a-space>
 						</a-card>
 					</a-col>
 				</a-row>
 			</a-col>
 			<a-col :sm="24" :md="24" :lg="10">
-				<NotificationBox :use-store="notificationStore"></NotificationBox>
+				<NotificationBox :use-store="notificationStore" class="hover-card"></NotificationBox>
 			</a-col>
 		</a-row>
 	</div>
+	<NewbieModal v-model:visible="state.showMenuModal" title="选择功能">
+		<div class="flex flex-col justify-center">
+			<div class="max-h-[400px] overflow-auto">
+				<a-tree
+					:tree-data="state.menusOptions"
+					default-expand-all
+					v-model:checked-keys="state.dailyFunctionsKeys"
+					check-strictly
+					checkable
+				></a-tree>
+			</div>
+
+			<div class="flex justify-center mt-4">
+				<NewbieButton :fetcher="state.menusFetcher" type="primary" @click="onSaveDailyMenu">保存</NewbieButton>
+			</div>
+		</div>
+	</NewbieModal>
 </template>
 
 <script setup>
 import { useNotificationStore, useUserStore } from "@manager/stores"
-import { PlusOutlined } from "@ant-design/icons-vue"
-import { computed } from "vue"
+import { EditOutlined } from "@ant-design/icons-vue"
+import { computed, h, inject, reactive } from "vue"
 import DefaultAvatar from "@public/images/default-avatar.png"
-import { Link } from "@inertiajs/vue3"
-
+import { Link, router } from "@inertiajs/vue3"
 import NotificationBox from "@modules/Starter/Resources/views/web/components/NotificationBox.vue"
+import { cloneDeep } from "lodash-es"
+import { useFetch, useFindOptionByValue, useProcessStatusSuccess } from "jobsys-newbie/hooks"
 
 const userStore = useUserStore()
 const notificationStore = useNotificationStore()
 
-defineProps({
+const props = defineProps({
 	roles: { type: Array, default: () => [] },
 	departments: { type: Array, default: () => [] },
 	projects: { type: Array, default: () => [] },
 	posts: { type: Array, default: () => [] },
 	brief: { type: Object, default: () => ({}) },
+	dailyFunctions: { type: Array, default: () => [] },
 })
 
+const route = inject("route")
+
 const profile = computed(() => userStore.profile)
+
+const menus = computed(() => userStore.menus)
+
+const tidyMenus = (menusOptions) =>
+	menusOptions.map((menu) => {
+		if (menu.children?.length) {
+			return {
+				disabled: true,
+				key: menu.page || menu.key,
+				children: tidyMenus(menu.children),
+				title: menu.displayName,
+			}
+		}
+
+		return {
+			key: menu.page || menu.key,
+			title: menu.displayName,
+		}
+	})
+
+const state = reactive({
+	showMenuModal: false,
+	menusFetcher: {},
+	menusOptions: tidyMenus(cloneDeep(menus.value)),
+	dailyFunctionsKeys: {
+		checked: props.dailyFunctions?.map((func) => func.key) || [],
+	},
+})
+
+const onSaveDailyMenu = async () => {
+	const dailyMenus = state.dailyFunctionsKeys.checked?.map((item) =>
+		useFindOptionByValue(state.menusOptions, item, {
+			label: "title",
+			value: "key",
+			children: "children",
+		}),
+	)
+
+	const res = await useFetch(state.menusFetcher).post(route("api.manager.center.personal-configuration"), {
+		key: "daily_functions",
+		value: dailyMenus,
+	})
+
+	useProcessStatusSuccess(res, () => {
+		state.showMenuModal = false
+		router.reload({ only: ["dailyFunctions"] })
+	})
+}
 </script>
 
 <style lang="less" scoped>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Manager;
 
+use App\Enums\UserConf;
 use App\Http\Controllers\BaseManagerController;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -14,13 +15,14 @@ class IndexController extends BaseManagerController
 
 	public function pageDashboard()
 	{
-
-		$roles = $this->login_user->roles()->lazy()->map(fn($item) => $item->name);
-		$departments = $this->login_user->departments()->lazy()->map(fn($item) => $item->name);
+		$roles = auth()->user()->roles()->lazy()->map(fn($item) => $item->name);
+		$departments = auth()->user()->departments()->lazy()->map(fn($item) => $item->name);
+		$daily_functions = auth()->user()->configurations()->where('key', UserConf::daily_functions)->value('value');
 
 		return Inertia::render('PageDashboard', [
 			'roles' => $roles,
 			'departments' => $departments,
+			'dailyFunctions' => $daily_functions,
 		]);
 	}
 

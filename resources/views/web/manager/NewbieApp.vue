@@ -1,13 +1,15 @@
 <template>
-	<ConfigProvider :theme="theme" :locale="zhCN">
-		<NewbieProvider v-bind="provider">
-			<slot></slot>
-		</NewbieProvider>
-	</ConfigProvider>
+	<StyleProvider hash-priority="high">
+		<ConfigProvider :theme="theme" :locale="zhCN">
+			<NewbieProvider v-bind="provider">
+				<slot></slot>
+			</NewbieProvider>
+		</ConfigProvider>
+	</StyleProvider>
 </template>
 
 <script setup>
-import { ConfigProvider } from "ant-design-vue"
+import { ConfigProvider, StyleProvider } from "ant-design-vue"
 import { NewbieProvider } from "jobsys-newbie"
 import zhCN from "ant-design-vue/es/locale/zh_CN"
 import { inject, reactive } from "vue"

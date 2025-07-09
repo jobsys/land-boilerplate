@@ -6,12 +6,7 @@ const useSystemStore = defineStore("system", () => {
 	const lang = ref({})
 	const dictionaries = ref({})
 
-	const fetchSystemSettings = async () => {
-		const res = await useFetch().get("api/manager/starter/system/settings")
-		useProcessStatusSuccess(res, () => {
-			lang.value = res.result.lang
-		})
-	}
+
 
 	const fetchDictionaries = async (keys) => {
 		keys = keys.filter((key) => !dictionaries.value[key])
@@ -22,7 +17,15 @@ const useSystemStore = defineStore("system", () => {
 		})
 	}
 
-	//fetchSystemSettings()
+	/*
+	const fetchSystemSettings = async () => {
+		const res = await useFetch().get("api/manager/starter/system/settings")
+		useProcessStatusSuccess(res, () => {
+			lang.value = res.result.lang
+		})
+	}
+	fetchSystemSettings()
+	*/
 
 	//整个系统经常使用到的字典项可以先拿出来放在 Store 中
 	//fetchDictionaries(["level_type"])

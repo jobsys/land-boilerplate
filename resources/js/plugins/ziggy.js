@@ -1,4 +1,4 @@
-import route from "ziggy-js"
+import { route } from "ziggy-js"
 
 export const ZiggyVue = {
 	install(app, options) {

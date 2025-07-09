@@ -1,5 +1,4 @@
-import route from "ziggy-js"
-
+import { route } from "ziggy-js"
 
 /**
  * 由于移动端 Vant 注入了 route 方法，导致和 Ziggy 冲突，这里重命名为 appRoute

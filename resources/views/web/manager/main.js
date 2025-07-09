@@ -1,4 +1,4 @@
-import "./styles/app.less"
+import "./styles/style.css"
 import { createApp, h } from "vue"
 import { createInertiaApp } from "@inertiajs/vue3"
 import { ZiggyVue } from "@/js/plugins/ziggy"
@@ -12,9 +12,11 @@ import NewbieApp from "./NewbieApp.vue"
 import CommonLayout from "./shared/CommonLayout.vue"
 import { useAppConfig } from "./config"
 import { useSystemStore, useUserStore } from "@manager/stores"
+/*
+ * 打印插件
 import { hiPrintPlugin } from "vue-plugin-hiprint"
-
 hiPrintPlugin.disAutoConnect()
+*/
 
 dayjs.locale("zh-cn")
 const pinia = createPinia()

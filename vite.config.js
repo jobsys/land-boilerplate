@@ -5,11 +5,13 @@ import vue from "@vitejs/plugin-vue"
 import Components from "unplugin-vue-components/vite"
 import { AntDesignVueResolver } from "unplugin-vue-components/resolvers"
 import eslintPlugin from "vite-plugin-eslint"
+import tailwindcss from "@tailwindcss/vite"
 
 export default defineConfig((mode) => {
 	const isDev = mode === "development"
 	return {
 		plugins: [
+			tailwindcss(),
 			laravel({
 				input: ["resources/views/web/manager/main.js"],
 				buildDirectory: "build/manager",
