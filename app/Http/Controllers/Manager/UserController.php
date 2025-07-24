@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Modules\Importexport\Services\ImportexportService;
 use Modules\Permission\Entities\Role;
-use Modules\Starter\Emnus\State;
+use Modules\Starter\Enums\State;
 
 class UserController extends BaseManagerController
 {

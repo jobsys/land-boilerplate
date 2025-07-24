@@ -1,6 +1,7 @@
 /*@import "tailwindcss";*/
 /* AntdV v4 版本的 StyleProvider 不支持 layer 配置，layer 不生效，无法通过调整 layer 来覆盖 AntdV 的样式*/
 @import "ant-design-vue/dist/reset.css" layer(reset);
+
 @import "tailwindcss/theme.css" layer(theme);
 @import "tailwindcss/utilities.css" layer(utilities);
 @import "simplebar-vue/dist/simplebar.min.css";
@@ -8,6 +9,11 @@
 @import "jobsys-newbie/dist/jobsys-newbie.css";
 
 @layer  theme, utilities, reset;
+
+/**
+ * Modules 中的文件需要通过 @source 来引入，否则会被忽略
+ */
+@source "../../../../Modules/**/*.vue";
 
 html, body {
 	background-color: #f0f2f5 !important;

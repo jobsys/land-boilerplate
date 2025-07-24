@@ -8,7 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use App\Services\UserService;
 use Inertia\Inertia;
-use Modules\Starter\Emnus\State;
+use Modules\Starter\Enums\State;
 
 class IndexController extends BaseManagerController
 {

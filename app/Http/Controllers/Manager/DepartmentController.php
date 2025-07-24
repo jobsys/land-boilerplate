@@ -6,7 +6,7 @@ use App\Http\Controllers\BaseManagerController;
 use App\Models\Department;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Modules\Starter\Emnus\State;
+use Modules\Starter\Enums\State;
 
 class DepartmentController extends BaseManagerController
 {
