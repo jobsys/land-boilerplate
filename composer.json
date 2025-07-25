@@ -94,11 +94,5 @@
 		}
 	},
 	"minimum-stability": "stable",
-	"prefer-stable": true,
-	"repositories": {
-		"packagist": {
-			"type": "composer",
-			"url": "https://mirrors.huaweicloud.com/repository/php/"
-		}
-	}
+	"prefer-stable": true
 }

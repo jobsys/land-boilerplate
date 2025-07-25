@@ -55,10 +55,23 @@
    > ```
    
    b. 安装项目依赖：
+
    
    ```bash
    composer install --no-dev
    ```
+
+> 如果使用 packagist 镜像无法安装，使用 Huawei 镜像, 在 `composer.json` 中添加以下配置：
+```json
+{
+	"repositories": {
+		"packagist": {
+			"type": "composer",
+			"url": "https://mirrors.huaweicloud.com/repository/php/"
+		}
+	}
+}
+```
 
 2. 配置环境变量 `.env`
    
@@ -103,7 +116,7 @@
    # work.conf
    [program:work]
    directory = /var/www/html/
-   command = /usr/local/bin/php /var/www/html/artisan queue:work --timeout=7200
+   command = /usr/local/bin/php /var/www/html/artisan queue:work --timeout=0
    autostart = true
    startsecs = 5
    startretries=1000
