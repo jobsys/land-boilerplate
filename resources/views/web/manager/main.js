@@ -1,4 +1,5 @@
 import "./styles/style.css"
+import "./styles/app.less"
 import { createApp, h } from "vue"
 import { createInertiaApp } from "@inertiajs/vue3"
 import { ZiggyVue } from "@/js/plugins/ziggy"

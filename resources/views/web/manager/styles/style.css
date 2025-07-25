@@ -13,7 +13,7 @@
 /**
  * Modules 中的文件需要通过 @source 来引入，否则会被忽略
  */
-@source "../../../../Modules/**/*.vue";
+@source "../../../../../Modules/**/*.vue";
 
 html, body {
 	background-color: #f0f2f5 !important;
