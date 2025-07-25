@@ -490,10 +490,10 @@ if (!function_exists('land_version_inertia_view')) {
 	 */
 	function land_version_inertia_view(string $view_dir, string $view_name, string|null $version): string
 	{
-		$version_view = "{$view_dir}/{$view_name}{$version}.vue";
+		$version_view = "{$view_dir}/{$view_name}.{$version}.vue";
 
 		if (file_exists(resource_path("views/{$version_view}"))) {
-			return "{$view_name}{$version}";
+			return "{$view_name}.{$version}";
 		}
 		return $view_name;
 	}
@@ -536,5 +536,37 @@ if (!function_exists('land_mini_pic_placeholder')) {
 	function land_mini_pic_placeholder(): string
 	{
 		return "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==";
+	}
+}
+
+if (!function_exists('land_cron_matches_now')) {
+	/**
+	 * 检查是否匹配 Cron 表达式
+	 * @param ?string $cron
+	 * @param string $wildcard
+	 * @return bool
+	 */
+	function land_cron_matches_now(?string $cron, string $wildcard = "*"): bool
+	{
+		if (!$cron) {
+			return false;
+		}
+
+		$matchesField = function (string $expr, int $value) use ($wildcard): bool {
+			return $expr === $wildcard || (string)(int)$expr === (string)$value;
+		};
+
+		[$min, $hour, $day, $month, $week] = explode(' ', $cron);
+
+		$now = now();
+
+		// Carbon: 0（周日）~ 6（周六） → 我们要转换成 1（周一）~ 7（周日）
+		$weekday = $now->dayOfWeek === 0 ? 7 : $now->dayOfWeek;
+
+		return $matchesField($min, $now->minute)
+			&& $matchesField($hour, $now->hour)
+			&& $matchesField($day, $now->day)
+			&& $matchesField($month, $now->month)
+			&& $matchesField($week, $weekday);
 	}
 }

@@ -3,34 +3,29 @@
 namespace App\Listeners;
 
 use App\Events\CommonExportApproved;
-use App\Notifications\CommonExportApprovedNotification;
+use App\Messages\CommonExportApprovedMessage;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Modules\Approval\Services\ApprovalService;
 
-class CommonExportApprovedListener  implements ShouldQueue
+class CommonExportApprovedListener implements ShouldQueue
 {
-    /**
-     * Create the event listener.
-     */
+	/**
+	 * Create the event listener.
+	 */
+	public function __construct()
+	{
+	}
 
-    protected ApprovalService $approvalService;
-
-    public function __construct(ApprovalService $approvalService)
-    {
-        $this->approvalService = $approvalService;
-    }
-
-    /**
-     * Handle the event.
-     * @throws \Exception
-     */
-    public function handle(CommonExportApproved $event): void
-    {
-        $task = $event->task;
-        $task->load('approvable', 'approvable.creator');
+	/**
+	 * Handle the event.
+	 * @throws \Exception
+	 */
+	public function handle(CommonExportApproved $event): void
+	{
+		$task = $event->task;
+		$task->load('approvable', 'approvable.creator');
 		$record = $task->approvable;
-        $creator = $record->creator;
+		$creator = $record->creator;
 
-        $creator->notify(new CommonExportApprovedNotification($record));
-    }
+		$creator->sendMessage(new CommonExportApprovedMessage($record));
+	}
 }

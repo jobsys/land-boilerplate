@@ -1,15 +1,15 @@
 <template>
 	<a-layout>
-		<a-layout-sider v-model:collapsed="isCollapsed" collapsible class="overflow-auto h-screen !fixed left-0 top-0 bottom-0" width="240">
+		<a-layout-sider v-model:collapsed="state.isCollapsed" collapsible class="overflow-auto h-screen !fixed left-0 top-0 bottom-0" width="240">
 			<div class="logo">
 				<a href="#" class="flex items-center justify-center !bg-[#002140]">
-					<img :src="isCollapsed ? miniLogoUrl : logoUrl" />
+					<img :src="state.isCollapsed ? miniLogoUrl : logoUrl" />
 				</a>
 			</div>
 			<simplebar style="height: calc(100% - 60px)" :auto-hide="false">
 				<a-menu
-					v-model:selectedKeys="selectedKeys"
-					v-model:openKeys="openKeys"
+					v-model:selectedKeys="state.selectedKeys"
+					v-model:openKeys="state.openKeys"
 					:items="menuItems"
 					theme="dark"
 					mode="inline"
@@ -18,7 +18,7 @@
 			</simplebar>
 		</a-layout-sider>
 
-		<a-layout :style="{ marginLeft: isCollapsed ? '80px' : '240px', transition: 'ease all 0.3s', backgroundColor: '#f0f2f5 !important' }">
+		<a-layout :style="{ marginLeft: state.isCollapsed ? '80px' : '240px', transition: 'ease all 0.3s', backgroundColor: '#f0f2f5 !important' }">
 			<a-layout-header class="!bg-white !p-0 !h-[54px]">
 				<div class="relative px-4 h-full flex items-center shadow">
 					<div class="basis-4"></div>
@@ -32,7 +32,7 @@
 									</a-button>
 								</a-badge>
 								<template #content>
-									<NotificationBox class="w-[800px]" :use-store="notificationStore"></NotificationBox>
+									<MessageBox class="w-[800px]" :use-store="messageStore"></MessageBox>
 								</template>
 							</a-popover>
 							<!--<a-dropdown>
@@ -100,7 +100,7 @@
 				<div class="breadcrumb-container bg-white px-[16px] py-[10px]">
 					<a-breadcrumb>
 						<a-breadcrumb-item
-							v-for="bread in breads"
+							v-for="bread in state.breads"
 							:key="bread.href"
 							:href="bread.href"
 							@click="() => bread.href && router.visit(bread.href)"
@@ -115,7 +115,7 @@
 			</a-layout-content>
 			<a-layout-footer
 				class="text-center !text-gray-300 font-bold !py-2 !text-[12px] fixed bottom-0 right-0 !bg-transparent z-0"
-				:class="[isCollapsed ? 'left-[80px]' : 'left-[240px]']"
+				:class="[state.isCollapsed ? 'left-[80px]' : 'left-[240px]']"
 			>
 				<p class="mb-1">职迅学生工作管理系统 ©版权所属</p>
 				<p class="mb-0">技术支持： <a href="https://jobsys.cn" target="_blank" class="text-gray-300 font-bold">职迅科技 JOBSYS.cn</a></p>
@@ -125,25 +125,34 @@
 </template>
 <script setup>
 import { Link, router } from "@inertiajs/vue3"
-import { computed, inject, ref } from "vue"
+import { computed, inject, reactive } from "vue"
 import { BellOutlined, CompressOutlined, ExpandOutlined, LockOutlined, LogoutOutlined, UserOutlined } from "@ant-design/icons-vue"
 import simplebar from "simplebar-vue"
 import DefaultAvatar from "@public/images/default-avatar.png"
-import { useAppStore, useNotificationStore, useUserStore } from "@manager/stores"
-import NotificationBox from "@modules/Starter/Resources/views/web/components/NotificationBox.vue"
+import { useAppStore, useMessageStore, useUserStore } from "@manager/stores"
+import MessageBox from "@modules/Starter/Resources/views/web/components/MessageBox.vue"
 import Icons from "./icons"
 import { useLandCustomerAsset } from "@/js/hooks/land"
 import { theme } from "ant-design-vue"
+
+const miniLogoUrl = useLandCustomerAsset("/images/default/logo-badge-white.png")
+const logoUrl = useLandCustomerAsset("/images/default/logo.png")
 
 const route = inject("route")
 
 const appStore = useAppStore()
 const userStore = useUserStore()
-const notificationStore = useNotificationStore()
-notificationStore.setBriefUrl(route("api.manager.starter.notification.brief"))
+const messageStore = useMessageStore()
+messageStore.setBriefUrl(route("api.manager.message.brief"))
 
-const totalUnreadCount = computed(() => notificationStore.totalUnread)
+const state = reactive({
+	openKeys: [], //打开的菜单项
+	selectedKeys: [], //选中的菜单项
+	isCollapsed: false, // 菜单是否折叠
+	breads: [], // 面包屑
+})
 
+const totalUnreadCount = computed(() => messageStore.totalUnread)
 const profile = computed(() => userStore.profile)
 const menuItems = computed(() => {
 	if (!userStore.menus?.length) {
@@ -152,13 +161,6 @@ const menuItems = computed(() => {
 
 	return convertMenus(userStore.menus)
 })
-const openKeys = ref([]) // 当前展开的菜单
-const selectedKeys = ref([]) // 当前选中的菜单
-const isCollapsed = ref(false) // 菜单是否折叠
-const breads = ref([]) // 面包屑
-
-const miniLogoUrl = useLandCustomerAsset("/images/default/logo-badge-white.png")
-const logoUrl = useLandCustomerAsset("/images/default/logo.png")
 
 const convertMenus = (menus) =>
 	menus.map((menu) => {
@@ -187,7 +189,7 @@ const convertMenus = (menus) =>
 		return menuItem
 	})
 const setupMenu = (currentPage) => {
-	breads.value = []
+	state.breads = []
 	const currentRoute = route().current()
 
 	//递归查找当前路由对应的菜单，只要有一个匹配，就返回true，否则返回false
@@ -195,7 +197,7 @@ const setupMenu = (currentPage) => {
 		items.some((item) => {
 			if (item.page && (item.page === currentRoute || currentRoute?.startsWith(`${item.page}.`))) {
 				// 添加所有父级面包屑（过滤掉type属性不为空的）
-				breads.value = [
+				state.breads = [
 					...parentBreads.filter((b) => !b.type),
 					{
 						label: item.label,
@@ -205,12 +207,12 @@ const setupMenu = (currentPage) => {
 
 				// 如果当前路由不是直接匹配的页面，添加页面标题
 				if (item.page !== currentRoute) {
-					breads.value.push({
+					state.breads.push({
 						label: currentPage.props.pageTitle || "",
 					})
 				}
 
-				selectedKeys.value = [item.page || item.key]
+				state.selectedKeys = [item.page || item.key]
 				return true
 			}
 
@@ -227,7 +229,7 @@ const setupMenu = (currentPage) => {
 				if (findRouteInMenu(item.children, newParentBreads)) {
 					// 设置当前展开的菜单
 					if (item.key || item.page) {
-						openKeys.value = [item.key || item.page]
+						state.openKeys = [item.key || item.page]
 					}
 					return true
 				}
@@ -241,13 +243,11 @@ const onToggleCompact = () => {
 	appStore.appSetting.theme.algorithm = appStore.appRuntime.isCompactMode ? theme.defaultAlgorithm : theme.compactAlgorithm
 	appStore.appRuntime.isCompactMode = !appStore.appRuntime.isCompactMode
 }
-
 const onClickMenu = ({ item }) => {
 	if (item.page) {
 		router.visit(route(item.page))
 	}
 }
-
 router.on("navigate", (e) => {
 	setupMenu(e.detail.page)
 })

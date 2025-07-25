@@ -41,21 +41,21 @@ class DepartmentController extends BaseManagerController
 
 		$input['creator_id'] = auth()->id();
 
-        if (isset($input['id']) && $input['id']) {
+		if (isset($input['id']) && $input['id']) {
 			$exists = Department::where('parent_id', $input['parent_id'] ?? null)->where('name', $input['name'])
 				->where('id', '<>', $input['id'])->exists();
 		} else {
 			$exists = Department::where('parent_id', $input['parent_id'] ?? null)->where('name', $input['name'])->exists();
 		}
 
-        if ($exists) {
+		if ($exists) {
 			return $this->message('存在同级同名部门');
 		}
 
-        $result = Department::updateOrCreate(['id' => $input['id'] ?? null], $input);
+		$result = Department::updateOrCreate(['id' => $input['id'] ?? null], $input);
 
-        return $this->json(null, $result ? State::SUCCESS : State::FAIL);
-    }
+		return $this->json(null, $result ? State::SUCCESS : State::FAIL);
+	}
 
 	public function items(Request $request)
 	{

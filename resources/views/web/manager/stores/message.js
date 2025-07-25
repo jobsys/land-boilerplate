@@ -4,8 +4,8 @@ import { find, findIndex } from "lodash-es"
 import { useFetch, useProcessStatusSuccess } from "jobsys-newbie/hooks"
 import { useIntervalFn } from "@vueuse/core"
 
-const useNotificationStore = defineStore("notification", () => {
-	const notificationTabs = ref([
+const useMessageStore = defineStore("message", () => {
+	const messageTabs = ref([
 		{
 			key: "todo",
 			title: "待办消息",
@@ -35,7 +35,7 @@ const useNotificationStore = defineStore("notification", () => {
 		isFetching.value = true
 		const res = await useFetch().get(briefUrl.value)
 		useProcessStatusSuccess(res, () => {
-			notificationTabs.value.forEach((tab) => {
+			messageTabs.value.forEach((tab) => {
 				tab.unread = res.result[tab.key]
 			})
 			totalUnread.value = res.result.all
@@ -43,47 +43,47 @@ const useNotificationStore = defineStore("notification", () => {
 		isFetching.value = false
 	}
 
-	const notificationMap = ref({
+	const messageMap = ref({
 		notification: {
 			pagination: {},
 			initPagination(data) {
-				notificationMap.value.notification.pagination = data
+				messageMap.value.notification.pagination = data
 			},
 		},
 
 		todo: {
 			pagination: {},
 			initPagination(data) {
-				notificationMap.value.todo.pagination = data
+				messageMap.value.todo.pagination = data
 			},
 		},
 		all: {
 			pagination: {},
 			initPagination(data) {
-				notificationMap.value.all.pagination = data
+				messageMap.value.all.pagination = data
 			},
 		},
 	})
 
-	const getNotificationType = (item) => {
-		if (item.type.endsWith("Notification")) {
+	const getMessageType = (item) => {
+		if (item.type === "notification") {
 			return "notification"
 		}
-		if (item.type.endsWith("Todo")) {
+		if (item.type === "todo") {
 			return "todo"
 		}
 		return "all"
 	}
 
-	const findItemInType = (item, type) => find(notificationMap.value[type].pagination.items, (it) => it.id === item.id)
+	const findItemInType = (item, type) => find(messageMap.value[type].pagination.items, (it) => it.id === item.id)
 
-	const findItemIndexInType = (item, type) => findIndex(notificationMap.value[type].pagination.items, (it) => it.id === item.id)
+	const findItemIndexInType = (item, type) => findIndex(messageMap.value[type].pagination.items, (it) => it.id === item.id)
 
 	const read = async (item, type) => {
 		if (type === "all") {
 			const notify = findItemInType(item, type)
 			notify.read_at = true
-			const otherType = getNotificationType(item)
+			const otherType = getMessageType(item)
 			const otherNotify = findItemInType(item, otherType)
 			if (otherNotify) {
 				otherNotify.read_at = true
@@ -102,17 +102,17 @@ const useNotificationStore = defineStore("notification", () => {
 	const readAll = async (type) => {
 		if (type === "all") {
 			;["all", "notification", "todo"].forEach((ty) => {
-				notificationMap.value[ty].pagination.items?.forEach((item) => {
+				messageMap.value[ty].pagination.items?.forEach((item) => {
 					item.read_at = true
 				})
 			})
 		} else {
-			notificationMap.value[type].pagination.items?.forEach((item) => {
+			messageMap.value[type].pagination.items?.forEach((item) => {
 				item.read_at = true
 			})
 
-			notificationMap.value.all.pagination.items?.forEach((item) => {
-				if (getNotificationType(item) === type) {
+			messageMap.value.all.pagination.items?.forEach((item) => {
+				if (getMessageType(item) === type) {
 					item.read_at = true
 				}
 			})
@@ -126,39 +126,37 @@ const useNotificationStore = defineStore("notification", () => {
 			if (index < 0) {
 				return
 			}
-			notificationMap.value.all.pagination.items?.splice(index, 1)
-			const otherType = getNotificationType(item)
+			messageMap.value.all.pagination.items?.splice(index, 1)
+			const otherType = getMessageType(item)
 			const otherIndex = findItemIndexInType(item, otherType)
 			if (otherIndex < 0) {
 				return
 			}
-			notificationMap.value[otherType].pagination.items?.splice(otherIndex, 1)
+			messageMap.value[otherType].pagination.items?.splice(otherIndex, 1)
 		} else {
 			const index = findItemIndexInType(item, type)
 			if (index < 0) {
 				return
 			}
 
-			notificationMap.value[type].pagination.items?.splice(index, 1)
+			messageMap.value[type].pagination.items?.splice(index, 1)
 			const otherIndex = findItemIndexInType(item, "all")
 			if (otherIndex < 0) {
 				return
 			}
-			notificationMap.value.all.pagination.items?.splice(otherIndex, 1)
+			messageMap.value.all.pagination.items?.splice(otherIndex, 1)
 		}
 		await fetchBrief()
 	}
 
 	const deleteAll = async (type) => {
 		if (type === "all") {
-			notificationMap.value.all.pagination.items = []
-			notificationMap.value.notification.pagination.items = []
-			notificationMap.value.todo.pagination.items = []
+			messageMap.value.all.pagination.items = []
+			messageMap.value.notification.pagination.items = []
+			messageMap.value.todo.pagination.items = []
 		} else {
-			notificationMap.value[type].pagination.items = []
-			notificationMap.value.all.pagination.items = notificationMap.value.all.pagination.items?.filter(
-				(item) => getNotificationType(item) !== type,
-			)
+			messageMap.value[type].pagination.items = []
+			messageMap.value.all.pagination.items = messageMap.value.all.pagination.items?.filter((item) => getMessageType(item) !== type)
 		}
 		await fetchBrief()
 	}
@@ -171,7 +169,7 @@ const useNotificationStore = defineStore("notification", () => {
 			}
 		}, 60000)
 	}
-	return { notificationMap, notificationTabs, totalUnread, read, readAll, deleteItem, deleteAll, setBriefUrl }
+	return { messageMap, messageTabs, totalUnread, read, readAll, deleteItem, deleteAll, setBriefUrl }
 })
 
-export default useNotificationStore
+export default useMessageStore

@@ -529,6 +529,27 @@ const tableColumns = () => [
 		},
 	},
 	{
+		title: "微信绑定",
+		key: "sns_count",
+		width: 80,
+		align: "center",
+		customRender({ record }) {
+			return useTableActions({
+				type: "tag",
+				name: record.sns_count ? "已绑定" : "未绑定",
+				props: { color: record.sns_count ? "green" : "gray" },
+			})
+		},
+		filterable: {
+			key: "with_sns",
+			type: "select",
+			options: [
+				{ label: "已绑定", value: "yes" },
+				{ label: "未绑定", value: "no" },
+			],
+		},
+	},
+	{
 		title: "手机号码",
 		dataIndex: "phone",
 		filterable: true,

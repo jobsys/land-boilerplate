@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Modules\Permission\Traits\Authorisations;
 use Modules\Permission\Traits\HasDataScopes;
@@ -22,7 +21,7 @@ use Staudenmeir\EloquentJsonRelations\HasJsonRelationships;
 
 class User extends Authenticatable
 {
-	use HasDataScopes, Accessable, Authorisations, Filterable, HasApiTokens, HasFactory, HasRoles, MessageReceiver, Notifiable, Paginatable, Snsable, LogsActivity, HasJsonRelationships;
+	use HasDataScopes, Accessable, Authorisations, Filterable, HasApiTokens, HasFactory, HasRoles, MessageReceiver, Paginatable, Snsable, LogsActivity, HasJsonRelationships;
 
 	protected $guarded = [];
 
@@ -79,8 +78,9 @@ class User extends Authenticatable
 
 	public function isSuperAdmin(): bool
 	{
-		return $this->hasRole(config('conf.role_super'));
+		return $this->hasRole(config('conf.role_super')) || $this->hasRole(config('conf.role_school_manager'));
 	}
+
 
 	public function getModelTypeAttribute(): string
 	{

@@ -33,8 +33,24 @@ class UserController extends BaseManagerController
 		$super_admin_id = config('conf.super_admin_id', false);
 		$department_id = request('department_id', false);
 
-		$builder = User::authorise()->with(['departments:id,name', 'roles:id,name'])
+		$builder = User::authorise()->with(['departments:id,name', 'roles:id,name'])->withCount(['sns'])
 			->filterable([
+				'department_id' => function ($builder, $query) {
+					$department_id = collect($query['value'])->pop();    // 部门id
+					if ($department_id) {
+						return $builder->whereHas('departments', fn($query) => $query->where("id", $department_id));
+					}
+					return $builder;
+				},
+				'with_sns' => function ($builder, $query) {
+					$value = $query['value'];
+					if ($value === 'yes') {
+						return $builder->whereHas('sns');
+					} else if ($value) {
+						return $builder->doesntHave('sns');
+					}
+					return $builder;
+				},
 				'role_id' => function ($builder, $query) {
 					$role_id = $query['value'];
 					if ($role_id == -1) {
@@ -187,12 +203,12 @@ class UserController extends BaseManagerController
 			['field' => 'nickname', 'label' => '姓名', 'rule' => 'required'],
 			['field' => 'work_num', 'label' => '工号', 'rule' => 'nullable|unique:users'],
 			['field' => 'name', 'label' => '登录账号'],
-			['field' => 'phone', 'label' => '手机号码', 'rule' => 'required|unique:users|regex:/^1[3456789]\d{9}$/'],
+			['field' => 'phone', 'label' => '手机号码', 'type' => 'string', 'rule' => 'required|unique:users|regex:/^1[3456789]\d{9}$/'],
 			['field' => 'email', 'label' => '电子邮箱', 'rule' => 'nullable|email'],
 			['field' => 'role', 'label' => '用户角色', 'rule' => 'nullable|in:' . implode(',', $roles->pluck('name')->toArray())],
 			['field' => 'department', 'label' => '所属部门', 'rule' => 'nullable|in:' . implode(',', $departments->pluck('name')->toArray())],
 			['field' => 'position', 'label' => '职位'],
-			['field' => 'password', 'label' => '初始密码'],
+			['field' => 'password', 'label' => '初始密码', 'type' => 'string'],
 		];
 
 		[$result, $error] = $service->import('用户信息导入', UserImporter::class, $fields, ['roleMap' => $roleMap, 'departmentMap' => $departmentMap]);

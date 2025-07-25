@@ -2,30 +2,24 @@
 
 namespace App\Jobs;
 
+use App\Messages\ImportFinishMessage;
 use App\Models\User;
-use App\Notifications\ImportFinishNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
 
 class NotifyUserOfCompletedImport implements ShouldQueue
 {
-    use Queueable, SerializesModels;
+	use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public User $user;
-    public string $title;
-    public string $import_id;
+	public function __construct(public string $title, public string $task_id, public User $user)
+	{
+	}
 
-    public function __construct(string $title, string $import_id, User $user)
-    {
-        $this->user = $user;
-        $this->title = $title;
-        $this->import_id = $import_id;
-    }
-
-    public function handle(): void
-    {
-        $this->user->notify(new ImportFinishNotification($this->title, $this->import_id));
-    }
+	public function handle(): void
+	{
+		$this->user->sendMessage(new ImportFinishMessage($this->title, $this->task_id));
+	}
 }

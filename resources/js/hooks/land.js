@@ -68,7 +68,8 @@ export function useTableColumn(title, dataIndex, type, props = {}, filterable = 
 	if (type === "isOnlyForQuery") {
 		return {
 			isOnlyForQuery: true,
-			...column,
+			title,
+			key: dataIndex,
 			...props,
 			filterable,
 		}
@@ -114,7 +115,7 @@ export function useTableColumn(title, dataIndex, type, props = {}, filterable = 
 			useTableActions({
 				type: "switch",
 				name: props.options || ["是", "否"],
-				value: record[dataIndex],
+				value: Boolean(record[dataIndex]),
 			})
 		if (filterable === true) {
 			column.filterable = {
