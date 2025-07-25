@@ -45,9 +45,14 @@ return [
 				'page' => 'page.manager.tool.data-transfer',
 			],
 			[
+				"displayName" => "消息管理",
+				"page" => "page.manager.starter.message",
+			],
+			[
 				"displayName" => "访问日志",
 				"page" => "page.manager.starter.log",
 			],
+
 		]
 	],
 	[

@@ -63,6 +63,17 @@ class BootPermission
 					'api.manager.center.password.edit' => '修改密码',
 				]
 			],
+
+			"page.manager.starter.message" => [
+				"display_name" => "消息管理",
+				"children" => [
+					"api.manager.starter.message-batch.items" => "编辑消息批次",
+					"api.manager.starter.message-batch.item" => "查看消息批次详情",
+					"api.manager.starter.message-batch.edit" => "编辑消息批次",
+					"api.manager.starter.message-batch.delete" => "删除消息批次",
+					"api.manager.starter.message-batch.pause" => "暂停消息批次",
+				]
+			],
 		];
 	}
 

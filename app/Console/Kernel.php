@@ -9,15 +9,15 @@ use Modules\Starter\Jobs\DispatchBatchMessageJob;
 
 class Kernel extends ConsoleKernel
 {
-    /**
-     * Define the application's command schedule.
-     */
-    protected function schedule(Schedule $schedule): void
-    {
-        //为了避免数据过多，定期清理
-        $schedule->command('telescope:prune --hours=168')->daily(); //每周清理 telescope 数据
-        $schedule->command('queue:prune-batches --hours=168')->daily(); //每周清理 queue batch 数据
-	$schedule->call(function () {
+	/**
+	 * Define the application's command schedule.
+	 */
+	protected function schedule(Schedule $schedule): void
+	{
+		//为了避免数据过多，定期清理
+		$schedule->command('telescope:prune --hours=168')->daily(); //每周清理 telescope 数据
+		$schedule->command('queue:prune-batches --hours=168')->daily(); //每周清理 queue batch 数据
+		$schedule->call(function () {
 			MessageBatch::where('send_type', 'cron')
 				->where('is_active', true)
 				->get()
@@ -28,15 +28,15 @@ class Kernel extends ConsoleKernel
 					}
 				});
 		})->everyMinute();
-    }
+	}
 
-    /**
-     * Register the commands for the application.
-     */
-    protected function commands(): void
-    {
-        $this->load(__DIR__.'/Commands');
+	/**
+	 * Register the commands for the application.
+	 */
+	protected function commands(): void
+	{
+		$this->load(__DIR__ . '/Commands');
 
-        require base_path('routes/console.php');
-    }
+		require base_path('routes/console.php');
+	}
 }
